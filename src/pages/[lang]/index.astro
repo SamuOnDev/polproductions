@@ -1,0 +1,191 @@
+---
+import type { ActiveLang } from "../../i18n";
+import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
+
+export async function getStaticPaths() {
+    return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang?: ActiveLang };
+const activeLang = lang ?? DEFAULT_LANG;
+
+const t = await getDict(activeLang);
+
+const projects = [
+    { title: "IRL – Barcelona Night Run", tag: "IRL / Cinematic", year: "2026" },
+    { title: "YouTube – High Retention Edit", tag: "Editing", year: "2026" },
+    { title: "Music Video – Neon Pulse", tag: "Music Video", year: "2025" },
+    { title: "Brand – Product Teaser", tag: "Commercial", year: "2025" },
+];
+---
+
+<html lang={activeLang}>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>POLOBK Studios</title>
+        <link rel="stylesheet" href="/src/styles/global.css" />
+    </head>
+
+    <body class="min-h-screen bg-brand-bg text-brand-text">
+        <!-- HEADER -->
+        <header class="sticky top-0 z-50 border-b border-white/10 bg-brand-bg/70 backdrop-blur">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+            <a href={`/${activeLang}/`} class="font-semibold tracking-wide">
+            POLOBK<span class="text-brand-accent">.</span> Studios
+            </a>
+
+            <nav class="hidden gap-6 text-sm text-white/80 md:flex">
+            <a href="#services" class="hover:text-white">{t.nav_services}</a>
+            <a href="#portfolio" class="hover:text-white">{t.nav_portfolio}</a>
+            <a href="#about" class="hover:text-white">{t.nav_about}</a>
+            <a href="#contact" class="hover:text-white">{t.nav_contact}</a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+            <a
+                class="hidden rounded-full bg-brand-accent px-4 py-2 text-sm font-semibold text-black md:inline-block"
+                href="#contact"
+            >
+                {t.cta_quote}
+            </a>
+
+            <!-- selector idioma minimal -->
+            <div class="flex gap-1 rounded-full border border-white/10 p-1 text-xs">
+                <a class={`rounded-full px-2 py-1 ${activeLang === "es" ? "bg-white/10" : ""}`} href="/es/">ES</a>
+                <a class={`rounded-full px-2 py-1 ${activeLang === "en" ? "bg-white/10" : ""}`} href="/en/">EN</a>
+            </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="relative">
+        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
+            <div>
+            <p class="text-sm text-white/60">{t.hero_kicker}</p>
+
+            <h1 class="mt-3 text-4xl font-extrabold leading-tight md:text-5xl">
+                {t.hero_title_a}
+                <span class="block text-brand-accent">{t.hero_title_b}</span>
+            </h1>
+
+            <p class="mt-4 max-w-prose text-white/70">
+                {t.hero_desc}
+            </p>
+
+            <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+                <a
+                class="rounded-full bg-white/10 px-6 py-3 text-sm font-semibold hover:bg-white/15"
+                href="#showreel"
+                >
+                {t.hero_showreel}
+                </a>
+                <a
+                class="rounded-full bg-brand-accent px-6 py-3 text-sm font-semibold text-black hover:brightness-110"
+                href="#contact"
+                >
+                {t.hero_contact}
+                </a>
+            </div>
+            </div>
+
+            <!-- bloque visual (sustituto del banner/imagen) -->
+            <div class="rounded-3xl border border-white/10 bg-brand-surface p-5">
+            <div class="aspect-video w-full rounded-2xl bg-black/60 ring-1 ring-white/10">
+                <div class="flex h-full items-center justify-center">
+                <span class="text-sm text-white/50">Showreel embed (YouTube/Vimeo)</span>
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-white/50">
+                Tip: aquí meteremos un modal con reproducción, igual que el template.
+            </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED PROJECTS -->
+    <section id="portfolio" class="border-t border-white/10">
+        <div class="mx-auto max-w-6xl px-4 py-14">
+            <div class="flex items-end justify-between gap-6">
+            <h2 class="text-2xl font-bold">{t.section_featured}</h2>
+            <a class="text-sm text-brand-accent hover:underline" href="#contact">Trabajemos juntos</a>
+            </div>
+
+            <div class="mt-8 grid gap-4 md:grid-cols-2">
+            {projects.map((p) => (
+                <a
+                href="#"
+                class="group rounded-3xl border border-white/10 bg-brand-surface p-6 hover:border-white/20"
+                >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-white/50">{p.tag}</span>
+                    <span class="text-xs text-white/40">{p.year}</span>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{p.title}</h3>
+                <p class="mt-2 text-sm text-white/60">
+                    Mini descripción del proyecto (objetivo, estilo, resultado).
+                </p>
+                </a>
+            ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="border-t border-white/10">
+        <div class="mx-auto max-w-6xl px-4 py-14">
+            <h2 class="text-2xl font-bold">{t.section_services}</h2>
+
+            <div class="mt-8 grid gap-4 md:grid-cols-2">
+            {[
+                { title: t.service_1_title, desc: t.service_1_desc },
+                { title: t.service_2_title, desc: t.service_2_desc },
+                { title: t.service_3_title, desc: t.service_3_desc },
+                { title: t.service_4_title, desc: t.service_4_desc }
+            ].map((s) => (
+                <div class="rounded-3xl border border-white/10 bg-brand-surface p-6">
+                <h3 class="text-lg font-semibold">{s.title}</h3>
+                <p class="mt-2 text-sm text-white/70">{s.desc}</p>
+                <div class="mt-4 text-xs text-white/40">
+                    Tags: YouTube / Retención / Color / Audio / Export
+                </div>
+                </div>
+            ))}
+            </div>
+        </div>
+        </section>
+
+        <!-- ABOUT (placeholder) -->
+        <section id="about" class="border-t border-white/10">
+        <div class="mx-auto max-w-6xl px-4 py-14">
+            <h2 class="text-2xl font-bold">{t.nav_about}</h2>
+            <p class="mt-3 max-w-prose text-white/70">
+            Aquí irá el bloque tipo “Crafting Stories Through Cinematic Frames” con 4 tarjetas, pero adaptado a POLOBK:
+            estilo, proceso, equipo y entrega.
+            </p>
+        </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact" class="border-t border-white/10">
+        <div class="mx-auto max-w-6xl px-4 py-14">
+            <h2 class="text-2xl font-bold">{t.contact_title}</h2>
+            <p class="mt-3 max-w-prose text-white/70">{t.contact_desc}</p>
+
+            <div class="mt-8 rounded-3xl border border-white/10 bg-brand-surface p-6">
+            <p class="text-sm text-white/60">
+                En el siguiente paso metemos formulario real (y envío tipo Auris).
+            </p>
+            </div>
+        </div>
+        </section>
+
+        <footer class="border-t border-white/10">
+        <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-10 text-sm text-white/50 md:flex-row md:items-center md:justify-between">
+            <p>© {new Date().getFullYear()} POLOBK Studios</p>
+            <p>Black + White + <span class="text-brand-accent">Yellow</span></p>
+        </div>
+        </footer>
+    </body>
+</html>
