@@ -1,4 +1,6 @@
 ---
+import fs from "node:fs";
+import path from "node:path";
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
 
@@ -11,26 +13,44 @@ const activeLang = lang ?? DEFAULT_LANG;
 
 const t = await getDict(activeLang);
 
+const imagesDir = new URL("../../../public/images", import.meta.url);
+const imageFiles = fs
+    .readdirSync(imagesDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name);
+const imageByBaseName = new Map(
+    imageFiles.map((filename) => [path.parse(filename).name.toLowerCase(), filename])
+);
+
+const getPublicImagePath = (baseName: string) => {
+    const filename = imageByBaseName.get(baseName.toLowerCase());
+    return filename ? `/images/${filename}` : "";
+};
+
 const featuredVideos = [
     {
         title: "IRL – Barcelona Night Run",
         tag: "IRL / Cinematic",
         year: "2026",
+        imageBase: "portfolio-irl-barcelona-night-run",
     },
     {
         title: "Music Video – Neon Pulse",
         tag: "Music Video",
         year: "2025",
+        imageBase: "portfolio-music-video-neon-pulse",
     },
     {
         title: "YouTube – High Retention Edit",
         tag: "Editing",
         year: "2026",
+        imageBase: "portfolio-youtube-high-retention",
     },
     {
         title: "Brand – Product Teaser",
         tag: "Commercial",
         year: "2025",
+        imageBase: "portfolio-brand-product-teaser",
     },
 ];
 
@@ -77,6 +97,8 @@ const stats = [
     { value: "45M", label: t.stat_2 },
     { value: "72h", label: t.stat_3 },
 ];
+
+const heroImageSrc = getPublicImagePath("hero-showreel-cover");
 ---
 
 <html lang={activeLang}>
@@ -164,9 +186,17 @@ const stats = [
                     </div>
                 </div>
 
-                <!-- bloque visual (sustituto del banner/imagen) -->
+                <!-- bloque visual (banner/imagen) -->
                 <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-5">
                     <div class="relative aspect-video w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+                        {heroImageSrc ? (
+                            <img
+                                src={heroImageSrc}
+                                alt={t.hero_showreel}
+                                class="absolute inset-0 h-full w-full object-cover"
+                                loading="lazy"
+                            />
+                        ) : null}
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span class="rounded-full bg-white/10 px-4 py-2 text-xs text-white/70">
                                 {t.hero_showreel}
@@ -196,25 +226,37 @@ const stats = [
                 </div>
 
                 <div class="mt-8 grid gap-4 md:grid-cols-2">
-                    {featuredVideos.map((video) => (
-                        <article class="group rounded-3xl border border-brand-accent/20 bg-brand-surface p-6 transition hover:border-brand-accent/40">
-                            <div class="flex items-center justify-between text-xs text-white/50">
-                                <span>{video.tag}</span>
-                                <span>{video.year}</span>
-                            </div>
-                            <div class="mt-4 aspect-video w-full rounded-2xl bg-black/60 ring-1 ring-white/10">
-                                <div class="flex h-full items-center justify-center">
-                                    <span class="rounded-full bg-brand-accent px-4 py-2 text-xs font-semibold text-black shadow-[0_8px_20px_rgba(255,212,0,0.3)]">
-                                        {t.showreel_play}
-                                    </span>
+                    {featuredVideos.map((video) => {
+                        const imageSrc = getPublicImagePath(video.imageBase);
+
+                        return (
+                            <article class="group rounded-3xl border border-brand-accent/20 bg-brand-surface p-6 transition hover:border-brand-accent/40">
+                                <div class="flex items-center justify-between text-xs text-white/50">
+                                    <span>{video.tag}</span>
+                                    <span>{video.year}</span>
                                 </div>
-                            </div>
-                            <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
-                            <p class="mt-2 text-sm text-white/60">
-                                {t.showreel_desc}
-                            </p>
-                        </article>
-                    ))}
+                                <div class="relative mt-4 aspect-video w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+                                    {imageSrc ? (
+                                        <img
+                                            src={imageSrc}
+                                            alt={video.title}
+                                            class="absolute inset-0 h-full w-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    ) : null}
+                                    <div class="relative flex h-full items-center justify-center">
+                                        <span class="rounded-full bg-brand-accent px-4 py-2 text-xs font-semibold text-black shadow-[0_8px_20px_rgba(255,212,0,0.3)]">
+                                            {t.showreel_play}
+                                        </span>
+                                    </div>
+                                </div>
+                                <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
+                                <p class="mt-2 text-sm text-white/60">
+                                    {t.showreel_desc}
+                                </p>
+                            </article>
+                        );
+                    })}
                 </div>
             </div>
         </section>
@@ -231,22 +273,36 @@ const stats = [
                 </div>
 
                 <div class="mt-8 grid gap-4 lg:grid-cols-3">
-                    {featuredVideos.map((video) => (
-                        <a
-                            href="#"
-                            class="group rounded-3xl border border-brand-accent/20 bg-brand-surface p-6 hover:border-brand-accent/40"
-                        >
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-white/50">{video.tag}</span>
-                                <span class="text-xs text-white/40">{video.year}</span>
-                            </div>
-                            <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
-                            <p class="mt-2 text-sm text-white/60">
-                                {t.section_featured_desc}
-                            </p>
-                            <div class="mt-6 text-xs text-brand-accent">{t.section_featured_action}</div>
-                        </a>
-                    ))}
+                    {featuredVideos.map((video) => {
+                        const imageSrc = getPublicImagePath(video.imageBase);
+
+                        return (
+                            <a
+                                href="#"
+                                class="group rounded-3xl border border-brand-accent/20 bg-brand-surface p-6 hover:border-brand-accent/40"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-white/50">{video.tag}</span>
+                                    <span class="text-xs text-white/40">{video.year}</span>
+                                </div>
+                                <div class="relative mt-4 aspect-video w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+                                    {imageSrc ? (
+                                        <img
+                                            src={imageSrc}
+                                            alt={video.title}
+                                            class="absolute inset-0 h-full w-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    ) : null}
+                                </div>
+                                <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
+                                <p class="mt-2 text-sm text-white/60">
+                                    {t.section_featured_desc}
+                                </p>
+                                <div class="mt-6 text-xs text-brand-accent">{t.section_featured_action}</div>
+                            </a>
+                        );
+                    })}
                 </div>
             </div>
         </section>
