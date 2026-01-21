@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
+import "../../styles/global.css";
 
 export async function getStaticPaths() {
     return LANGS.map((lang) => ({ params: { lang } }));
@@ -108,7 +109,6 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>POLOBK Studios</title>
-        <link rel="stylesheet" href="/src/styles/global.css" />
     </head>
 
     <body class="min-h-screen bg-brand-bg text-brand-text">
