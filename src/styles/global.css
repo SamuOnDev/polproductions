@@ -17,6 +17,7 @@ body {
     background:
         radial-gradient(1560px 780px at 10% 0%, rgb(var(--brand-accent) / 0.3), transparent 70%),
         rgb(var(--brand-bg));
+    background-attachment: fixed;
     color: rgb(var(--brand-text));
 }
 
