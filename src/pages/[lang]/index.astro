@@ -1,6 +1,4 @@
 ---
-import fs from "node:fs";
-import path from "node:path";
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
 import "../../styles/global.css";
@@ -14,16 +12,13 @@ const activeLang = lang ?? DEFAULT_LANG;
 
 const t = await getDict(activeLang);
 
-const imagesDir = new URL("../../../public/images", import.meta.url);
-const imageFiles = fs.existsSync(imagesDir)
-    ? fs
-          .readdirSync(imagesDir, { withFileTypes: true })
-          .filter((entry) => entry.isFile())
-          .map((entry) => entry.name)
-    : [];
-const imageByBaseName = new Map(
-    imageFiles.map((filename) => [path.parse(filename).name.toLowerCase(), filename])
-);
+const imageByBaseName = new Map([
+    ["hero-showreel-cover", "hero-showreel-cover.jpg"],
+    ["portfolio-irl-barcelona-night-run", "portfolio-irl-barcelona-night-run.png"],
+    ["portfolio-music-video-neon-pulse", "portfolio-music-video-neon-pulse.png"],
+    ["portfolio-youtube-high-retention", "portfolio-youtube-high-retention.png"],
+    ["portfolio-brand-product-teaser", "portfolio-brand-product-teaser.png"],
+]);
 
 const getPublicImagePath = (baseName: string) => {
     const filename = imageByBaseName.get(baseName.toLowerCase());
