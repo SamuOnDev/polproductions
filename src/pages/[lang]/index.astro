@@ -14,10 +14,12 @@ const activeLang = lang ?? DEFAULT_LANG;
 const t = await getDict(activeLang);
 
 const imagesDir = new URL("../../../public/images", import.meta.url);
-const imageFiles = fs
-    .readdirSync(imagesDir, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name);
+const imageFiles = fs.existsSync(imagesDir)
+    ? fs
+          .readdirSync(imagesDir, { withFileTypes: true })
+          .filter((entry) => entry.isFile())
+          .map((entry) => entry.name)
+    : [];
 const imageByBaseName = new Map(
     imageFiles.map((filename) => [path.parse(filename).name.toLowerCase(), filename])
 );
