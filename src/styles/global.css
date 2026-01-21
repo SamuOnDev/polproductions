@@ -15,7 +15,7 @@ html {
 
 body {
     background:
-        radial-gradient(1200px 600px at 10% 0%, rgb(var(--brand-accent) / 0.08), transparent 60%),
+        radial-gradient(1560px 780px at 10% 0%, rgb(var(--brand-accent) / 0.104), transparent 70%),
         rgb(var(--brand-bg));
     color: rgb(var(--brand-text));
 }
