@@ -12,10 +12,30 @@ const activeLang = lang ?? DEFAULT_LANG;
 const t = await getDict(activeLang);
 
 const projects = [
-    { title: "IRL – Barcelona Night Run", tag: "IRL / Cinematic", year: "2026" },
-    { title: "YouTube – High Retention Edit", tag: "Editing", year: "2026" },
-    { title: "Music Video – Neon Pulse", tag: "Music Video", year: "2025" },
-    { title: "Brand – Product Teaser", tag: "Commercial", year: "2025" },
+    {
+        title: "IRL – Barcelona Night Run",
+        tag: "IRL / Cinematic",
+        year: "2026",
+        image: "/images/portfolio-irl-barcelona-night-run.jpg",
+    },
+    {
+        title: "YouTube – High Retention Edit",
+        tag: "Editing",
+        year: "2026",
+        image: "/images/portfolio-youtube-high-retention.jpg",
+    },
+    {
+        title: "Music Video – Neon Pulse",
+        tag: "Music Video",
+        year: "2025",
+        image: "/images/portfolio-music-video-neon-pulse.jpg",
+    },
+    {
+        title: "Brand – Product Teaser",
+        tag: "Commercial",
+        year: "2025",
+        image: "/images/portfolio-brand-product-teaser.jpg",
+    },
 ];
 ---
 
@@ -90,12 +110,15 @@ const projects = [
             </div>
             </div>
 
-            <!-- bloque visual (sustituto del banner/imagen) -->
+            <!-- bloque visual (banner/imagen de showreel) -->
             <div class="rounded-3xl border border-white/10 bg-brand-surface p-5">
-            <div class="aspect-video w-full rounded-2xl bg-black/60 ring-1 ring-white/10">
-                <div class="flex h-full items-center justify-center">
-                <span class="text-sm text-white/50">Showreel embed (YouTube/Vimeo)</span>
-                </div>
+            <div class="aspect-video w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+                <img
+                src="/images/hero-showreel-cover.jpg"
+                alt="Frame del showreel de POLOBK Studios"
+                class="h-full w-full object-cover"
+                loading="lazy"
+                />
             </div>
             <p class="mt-4 text-xs text-white/50">
                 Tip: aquí meteremos un modal con reproducción, igual que el template.
@@ -121,6 +144,14 @@ const projects = [
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-white/50">{p.tag}</span>
                     <span class="text-xs text-white/40">{p.year}</span>
+                </div>
+                <div class="mt-4 overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+                    <img
+                    src={p.image}
+                    alt={`Imagen del proyecto ${p.title}`}
+                    class="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                    loading="lazy"
+                    />
                 </div>
                 <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{p.title}</h3>
                 <p class="mt-2 text-sm text-white/60">
