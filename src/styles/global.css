@@ -6,7 +6,7 @@
     --brand-surface: 14 14 14;
     --brand-text: 255 255 255;
     --brand-muted: 255 255 255;
-    --brand-accent: 255 212 0;
+    --brand-accent: 59 130 246;
 }
 
 html {
@@ -17,6 +17,7 @@ body {
     background:
         radial-gradient(1560px 780px at 10% 0%, rgb(var(--brand-accent) / 0.3), transparent 70%),
         rgb(var(--brand-bg));
+    background-attachment: fixed;
     color: rgb(var(--brand-text));
 }
 
