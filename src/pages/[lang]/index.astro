@@ -175,7 +175,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
 
                     <div class="mt-10 grid grid-cols-3 gap-4">
                         {stats.map((stat) => (
-                            <div class="rounded-2xl border border-brand-accent/20 bg-brand-surface px-4 py-4">
+                            <div class="rounded-2xl border border-brand-accent/20 frame-surface px-4 py-4">
                                 <p class="text-lg font-semibold text-brand-accent">{stat.value}</p>
                                 <p class="text-xs text-white/60">{stat.label}</p>
                             </div>
@@ -184,7 +184,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                 </div>
 
                 <!-- bloque visual (banner/imagen) -->
-                <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-5">
+                <div class="rounded-3xl border border-brand-accent/20 frame-surface p-5">
                     <div class="relative aspect-video w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
                         {heroImageSrc ? (
                             <img
@@ -227,7 +227,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                         const imageSrc = getPublicImagePath(video.imageBase);
 
                         return (
-                            <article class="group rounded-3xl border border-brand-accent/20 bg-brand-surface p-6 transition hover:border-brand-accent/40">
+                            <article class="group rounded-3xl border border-brand-accent/20 frame-surface p-6 transition hover:border-brand-accent/40">
                                 <div class="flex items-center justify-between text-xs text-white/50">
                                     <span>{video.tag}</span>
                                     <span>{video.year}</span>
@@ -290,7 +290,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                         return (
                             <a
                                 href="#"
-                                class="group rounded-3xl border border-brand-accent/20 bg-brand-surface p-6 hover:border-brand-accent/40"
+                                class="group rounded-3xl border border-brand-accent/20 frame-surface p-6 hover:border-brand-accent/40"
                             >
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs text-white/50">{video.tag}</span>
@@ -336,7 +336,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                         { title: t.service_3_title, desc: t.service_3_desc },
                         { title: t.service_4_title, desc: t.service_4_desc },
                     ].map((service) => (
-                        <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-6">
+                        <div class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
                             <h3 class="text-lg font-semibold">{service.title}</h3>
                             <p class="mt-2 text-sm text-white/70">{service.desc}</p>
                             <div class="mt-4 text-xs text-white/40">
@@ -359,15 +359,15 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                             {t.about_desc}
                         </p>
                         <div class="mt-6 flex flex-wrap gap-3">
-                            <span class="rounded-full border border-brand-accent/20 bg-brand-surface px-4 py-2 text-xs text-white/60">{t.about_tag_1}</span>
-                            <span class="rounded-full border border-brand-accent/20 bg-brand-surface px-4 py-2 text-xs text-white/60">{t.about_tag_2}</span>
-                            <span class="rounded-full border border-brand-accent/20 bg-brand-surface px-4 py-2 text-xs text-white/60">{t.about_tag_3}</span>
+                            <span class="rounded-full border border-brand-accent/20 frame-surface px-4 py-2 text-xs text-white/60">{t.about_tag_1}</span>
+                            <span class="rounded-full border border-brand-accent/20 frame-surface px-4 py-2 text-xs text-white/60">{t.about_tag_2}</span>
+                            <span class="rounded-full border border-brand-accent/20 frame-surface px-4 py-2 text-xs text-white/60">{t.about_tag_3}</span>
                         </div>
                     </div>
 
                     <div class="grid gap-4 sm:grid-cols-2">
                         {aboutCards.map((card) => (
-                            <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-5">
+                            <div class="rounded-3xl border border-brand-accent/20 frame-surface p-5">
                                 <h3 class="text-sm font-semibold text-brand-accent">{card.title}</h3>
                                 <p class="mt-2 text-sm text-white/70">{card.desc}</p>
                             </div>
@@ -390,7 +390,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
 
                 <div class="mt-8 grid gap-4 md:grid-cols-2">
                     {processSteps.map((step, index) => (
-                        <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-6">
+                        <div class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
                             <div class="flex items-center gap-3">
                                 <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xs text-brand-accent">
                                     0{index + 1}
@@ -407,7 +407,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
         <!-- CTA -->
         <section class="border-t border-brand-accent/20">
             <div class="mx-auto max-w-6xl px-4 py-14">
-                <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-8 md:p-12">
+                <div class="rounded-3xl border border-brand-accent/20 frame-surface p-8 md:p-12">
                     <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                         <div>
                             <h2 class="text-2xl font-bold">{t.cta_title}</h2>
@@ -437,7 +437,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                 <p class="mt-4 max-w-prose text-white/70">{t.contact_desc}</p>
 
                 <div class="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-                    <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-6">
+                    <div class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
                         <form class="grid gap-4 text-sm text-white/70">
                             <input class="form-field rounded-2xl border bg-black/40 px-4 py-3" placeholder={t.form_name} />
                             <input class="form-field rounded-2xl border bg-black/40 px-4 py-3" placeholder={t.form_email} />
@@ -455,7 +455,7 @@ const heroImageSrc = getPublicImagePath("hero-showreel-cover");
                         </form>
                     </div>
 
-                    <div class="rounded-3xl border border-brand-accent/20 bg-brand-surface p-6">
+                    <div class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
                         <p class="text-sm text-white/60">{t.contact_side_title}</p>
                         <p class="mt-3 text-lg font-semibold">{t.contact_side_email}</p>
                         <div class="mt-6 border-t border-brand-accent/20 pt-6 text-sm text-white/60">
