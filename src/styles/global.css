@@ -66,12 +66,13 @@ body {
 
 .frame-surface {
     background:
-        linear-gradient(135deg, rgb(var(--brand-accent) / 0.18) 0%, rgb(var(--brand-surface) / 0.95) 55%),
-        radial-gradient(240px 160px at 90% 10%, rgb(var(--brand-accent) / 0.2), transparent 70%);
+        linear-gradient(135deg, rgb(var(--brand-accent) / 0.3) 0%, rgb(var(--brand-surface) / 0.9) 45%, rgb(0 0 0 / 0.95) 100%),
+        radial-gradient(260px 180px at 85% 15%, rgb(var(--brand-accent) / 0.28), transparent 70%),
+        linear-gradient(0deg, rgb(0 0 0 / 0.65), rgb(0 0 0 / 0.65));
     box-shadow:
-        inset 0 0 0 1px rgb(var(--brand-accent) / 0.08),
-        inset 0 0 26px rgb(var(--brand-accent) / 0.12),
-        0 16px 32px rgb(0 0 0 / 0.35);
+        inset 0 0 0 1px rgb(var(--brand-accent) / 0.14),
+        inset 0 0 40px rgb(var(--brand-accent) / 0.2),
+        0 20px 40px rgb(0 0 0 / 0.45);
 }
 
 .lang-pill {
