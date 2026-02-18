@@ -32,11 +32,6 @@ src/
     global.css
 ```
 
-
-## Auditoría técnica
-
-- Informe profundo: `docs/auditoria-tecnica-2026-02.md`.
-
 ## Mejores próximos pasos (recomendados)
 
 1. **SEO técnico**
