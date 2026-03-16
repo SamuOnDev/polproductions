@@ -26,6 +26,23 @@ body {
     color: #0a0a0a;
 }
 
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 100;
+    border-radius: 9999px;
+    background: rgb(var(--brand-accent));
+    color: #050505;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.skip-link:focus {
+    top: 1rem;
+}
+
 .btn-primary {
     background: linear-gradient(135deg, rgb(var(--brand-accent)) 0%, rgb(var(--brand-accent) / 0.85) 100%);
     box-shadow:
@@ -104,4 +121,18 @@ textarea:focus-visible,
 select:focus-visible {
     outline: 2px solid rgb(var(--brand-accent));
     outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
