@@ -85,7 +85,6 @@ const pageDescription = t.hero_desc;
                 <nav class="hidden gap-6 text-sm text-white/80 md:flex" aria-label="Main navigation">
                     <a href="#showreel" class="hover:text-white">{t.nav_showreel}</a>
                     <a href="#services" class="hover:text-white">{t.nav_services}</a>
-                    <a href="#portfolio" class="hover:text-white">{t.nav_portfolio}</a>
                     <a href="#about" class="hover:text-white">{t.nav_about}</a>
                     <a href="#contact" class="hover:text-white">{t.nav_contact}</a>
                 </nav>
@@ -177,38 +176,6 @@ const pageDescription = t.hero_desc;
                                     </div>
                                     <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
                                     <p class="mt-2 text-sm text-white/60">{t.showreel_desc}</p>
-                                </article>
-                            );
-                        })}
-                    </div>
-                </div>
-            </section>
-
-            <section id="portfolio" class="border-t border-brand-accent/20">
-                <div class="mx-auto max-w-6xl px-4 py-14">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-white/40">{t.section_featured_kicker}</p>
-                            <h2 class="mt-2 text-2xl font-bold">{t.section_featured}</h2>
-                        </div>
-                        <a class="text-sm text-brand-accent hover:underline" href="#contact">{t.section_featured_cta}</a>
-                    </div>
-
-                    <div class="mt-8 grid gap-4 lg:grid-cols-3">
-                        {featuredVideos.map((video) => {
-                            const imageSrc = getPublicImagePath(video.imageBase);
-                            return (
-                                <article class="group rounded-3xl border border-brand-accent/20 frame-surface p-6 hover:border-brand-accent/40">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-xs text-white/50">{video.tag}</span>
-                                        <span class="text-xs text-white/40">{video.year}</span>
-                                    </div>
-                                    <div class="relative mt-4 aspect-video w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
-                                        {imageSrc ? (<img src={imageSrc} alt={video.title} class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />) : null}
-                                    </div>
-                                    <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
-                                    <p class="mt-2 text-sm text-white/60">{t.section_featured_desc}</p>
-                                    <div class="mt-6 text-xs text-brand-accent">{t.section_featured_action}</div>
                                 </article>
                             );
                         })}
