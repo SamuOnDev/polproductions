@@ -13,6 +13,7 @@ html,
 body {
     margin: 0;
     font-family: "Inter", "Segoe UI", sans-serif;
+    scroll-behavior: smooth;
 }
 
 .site-bg {
@@ -25,6 +26,41 @@ body {
 a {
     color: inherit;
     text-decoration: none;
+}
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: linear-gradient(180deg, rgb(9 10 13 / 0.95), rgb(9 10 13 / 0.7));
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.35);
+}
+
+.scroll-section {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.scroll-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html,
+    body {
+        scroll-behavior: auto;
+    }
+
+    .scroll-section {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
 }
 
 .gold-btn {
