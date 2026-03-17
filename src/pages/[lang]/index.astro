@@ -1,6 +1,7 @@
 ---
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
+import { projects } from "../../data/projects";
 import "../../styles/global.css";
 
 export async function getStaticPaths() {
@@ -48,9 +49,7 @@ const labels = activeLang === "es"
     };
 
 const featuredProjects = [
-    { tag: "IRL / EVENTO", title: "Proyecto Destacado 1", desc: "Producción en vivo y rodaje dinámico.", image: "/images/portfolio-irl-barcelona-night-run.png" },
-    { tag: "VIDEOCLIP", title: "Proyecto Destacado 2", desc: "Video musical con estilo cinematográfico.", image: "/images/portfolio-music-video-neon-pulse.png" },
-    { tag: "YOUTUBE EDIT", title: "Proyecto Destacado 3", desc: "Edición optimizada para YouTube.", image: "/images/portfolio-youtube-high-retention.png" },
+    ...projects,
 ];
 
 const services = [
@@ -81,7 +80,7 @@ const services = [
 
                 <nav class="hidden items-center gap-8 text-sm md:flex">
                     <a href="#top">{t.nav_home}</a>
-                    <a href="#featured">Trabajos</a>
+                    <a href={`/${activeLang}/trabajos/`}>Trabajos</a>
                     <a href="#services">{t.nav_services}</a>
                     <a href="#contact">{t.nav_about}</a>
                     <a href="#services">{labels.process}</a>
@@ -129,13 +128,15 @@ const services = [
                     {featuredProjects.map((item) => (
                         <article class="project-card overflow-hidden border border-white/20 bg-black/50">
                             <div class="relative h-56">
-                                <img src={item.image} alt={item.title} class="h-full w-full object-cover" />
+                                <img src={item.heroImage} alt={item.title} class="h-full w-full object-cover" />
                                 <span class="absolute left-4 top-4 rounded bg-black/80 px-3 py-1 text-sm font-semibold">{item.tag}</span>
                             </div>
                             <div class="p-5">
                                 <h3 class="text-4xl font-bold">{item.title}</h3>
-                                <p class="mt-2 text-xl text-white/75">{item.desc}</p>
-                                <button class="gold-btn mt-4 rounded px-4 py-2 font-bold text-black">Ver Proyecto</button>
+                                <p class="mt-2 text-xl text-white/75">{item.shortDescription}</p>
+                                <a class="gold-btn mt-4 inline-block rounded px-4 py-2 font-bold text-black" href={`/${activeLang}/trabajos/${item.slug}/`}>
+                                    Ver Proyecto
+                                </a>
                             </div>
                         </article>
                     ))}
@@ -147,10 +148,10 @@ const services = [
                 <div class="grid gap-4 md:grid-cols-4">
                     {services.map((item) => (
                         <article class="project-card overflow-hidden border border-white/20 bg-black/50">
-                            <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
+                            <img src={item.heroImage} alt={item.title} class="h-44 w-full object-cover" />
                             <div class="p-5">
                                 <h3 class="text-4xl font-bold">{item.title}</h3>
-                                <p class="mt-2 text-xl text-white/75">{item.desc}</p>
+                                <p class="mt-2 text-xl text-white/75">{item.shortDescription}</p>
                             </div>
                         </article>
                     ))}
