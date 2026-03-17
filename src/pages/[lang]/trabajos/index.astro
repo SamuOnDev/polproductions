@@ -1,0 +1,60 @@
+---
+import type { ActiveLang } from "../../../i18n";
+import { LANGS, DEFAULT_LANG } from "../../../i18n";
+import { projects } from "../../../data/projects";
+import "../../../styles/global.css";
+
+export async function getStaticPaths() {
+    return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang?: ActiveLang };
+const activeLang = lang ?? DEFAULT_LANG;
+
+const labels = activeLang === "es"
+    ? {
+        back: "← Volver al inicio",
+        title: "Proyectos",
+        subtitle: "Una selección de trabajos de producción, rodaje y edición.",
+        button: "Ver proyecto",
+    }
+    : {
+        back: "← Back to home",
+        title: "Projects",
+        subtitle: "A curated selection of production, shooting and editing work.",
+        button: "View project",
+    };
+---
+
+<html lang={activeLang}>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{labels.title} | POL Producciones</title>
+    </head>
+    <body class="site-bg min-h-screen text-brand-text antialiased">
+        <main class="mx-auto max-w-6xl px-4 py-16">
+            <a class="text-white/75 transition hover:text-brand-accent" href={`/${activeLang}/`}>{labels.back}</a>
+            <h1 class="mt-4 text-5xl font-black md:text-6xl">{labels.title}</h1>
+            <p class="mt-4 max-w-2xl text-xl text-white/75">{labels.subtitle}</p>
+
+            <section class="mt-10 grid gap-5 md:grid-cols-3">
+                {projects.map((project) => (
+                    <article class="project-card overflow-hidden border border-white/20 bg-black/50">
+                        <div class="relative h-56">
+                            <img src={project.heroImage} alt={project.title} class="h-full w-full object-cover" />
+                            <span class="absolute left-4 top-4 rounded bg-black/80 px-3 py-1 text-sm font-semibold">{project.tag}</span>
+                        </div>
+                        <div class="p-5">
+                            <h2 class="text-3xl font-bold">{project.title}</h2>
+                            <p class="mt-2 text-lg text-white/75">{project.shortDescription}</p>
+                            <a class="gold-btn mt-4 inline-block rounded px-4 py-2 font-bold text-black" href={`/${activeLang}/trabajos/${project.slug}/`}>
+                                {labels.button}
+                            </a>
+                        </div>
+                    </article>
+                ))}
+            </section>
+        </main>
+    </body>
+</html>
