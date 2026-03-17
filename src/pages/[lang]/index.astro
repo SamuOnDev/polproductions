@@ -13,329 +13,167 @@ const t = await getDict(activeLang);
 
 const siteUrl = Astro.site ? Astro.site.origin : "https://polobkstudios.com";
 const currentUrl = `${siteUrl}/${activeLang}/`;
+const heroImage = "/images/hero-showreel-cover.jpg";
 
-const imageByBaseName = new Map([
-    ["hero-showreel-cover", "hero-showreel-cover.jpg"],
-    ["portfolio-irl-barcelona-night-run", "portfolio-irl-barcelona-night-run.png"],
-    ["portfolio-music-video-neon-pulse", "portfolio-music-video-neon-pulse.png"],
-    ["portfolio-youtube-high-retention", "portfolio-youtube-high-retention.png"],
-    ["portfolio-brand-product-teaser", "portfolio-brand-product-teaser.png"],
-]);
+const labels = activeLang === "es"
+    ? {
+        cta: "Hablemos",
+        process: "Proceso",
+        heroTitle: "VISUALES QUE PARECEN CAROS Y RETIENEN",
+        heroDesc: "Dirección visual, rodaje IRL y edición de alto impacto para YouTube, videoclips y marcas.",
+        watch: "Ver Showreel",
+        contact: "Contáctame",
+        featured: "TRABAJOS DESTACADOS",
+        premium: "SERVICIOS PREMIUM",
+        ready: "¿LISTO PARA ELEVAR TUS VIDEOS?",
+        readyDesc: "Hablemos sobre tu próximo proyecto.",
+        location: "Respuesta en 24 horas · Ubicado en España.",
+        send: "Enviar",
+        reel: "Reel Principal",
+    }
+    : {
+        cta: "Let's talk",
+        process: "Process",
+        heroTitle: "VISUALS THAT LOOK PREMIUM AND RETAIN",
+        heroDesc: "Visual direction, IRL shooting and high-impact editing for YouTube, music videos and brands.",
+        watch: "Watch Showreel",
+        contact: "Contact me",
+        featured: "FEATURED WORK",
+        premium: "PREMIUM SERVICES",
+        ready: "READY TO ELEVATE YOUR VIDEOS?",
+        readyDesc: "Let's talk about your next project.",
+        location: "Reply within 24 hours · Based in Spain.",
+        send: "Send",
+        reel: "Main Reel",
+    };
 
-const getPublicImagePath = (baseName: string) => {
-    const filename = imageByBaseName.get(baseName.toLowerCase());
-    return filename ? `/images/${filename}` : "";
-};
-
-const featuredVideos = [
-    { title: "IRL – Barcelona Night Run", tag: "IRL / Cinematic", year: "2026", duration: "01:42", imageBase: "portfolio-irl-barcelona-night-run" },
-    { title: "Music Video – Neon Pulse", tag: "Music Video", year: "2025", duration: "02:15", imageBase: "portfolio-music-video-neon-pulse" },
-    { title: "YouTube – High Retention Edit", tag: "Editing", year: "2026", duration: "00:58", imageBase: "portfolio-youtube-high-retention" },
-    { title: "Brand – Product Teaser", tag: "Commercial", year: "2025", duration: "00:47", imageBase: "portfolio-brand-product-teaser" },
+const featuredProjects = [
+    { tag: "IRL / EVENTO", title: "Proyecto Destacado 1", desc: "Producción en vivo y rodaje dinámico.", image: "/images/portfolio-irl-barcelona-night-run.png" },
+    { tag: "VIDEOCLIP", title: "Proyecto Destacado 2", desc: "Video musical con estilo cinematográfico.", image: "/images/portfolio-music-video-neon-pulse.png" },
+    { tag: "YOUTUBE EDIT", title: "Proyecto Destacado 3", desc: "Edición optimizada para YouTube.", image: "/images/portfolio-youtube-high-retention.png" },
 ];
 
-const processSteps = [
-    { step: t.process_step_1_title, desc: t.process_step_1_desc },
-    { step: t.process_step_2_title, desc: t.process_step_2_desc },
-    { step: t.process_step_3_title, desc: t.process_step_3_desc },
-    { step: t.process_step_4_title, desc: t.process_step_4_desc },
+const services = [
+    { title: "Edición YouTube", desc: "Contenido impactante para creadores.", image: "/images/portfolio-youtube-high-retention.png" },
+    { title: "Videoclips", desc: "Producción visual para artistas.", image: "/images/portfolio-music-video-neon-pulse.png" },
+    { title: "Grabación IRL", desc: "Rodajes en locaciones reales.", image: "/images/portfolio-irl-barcelona-night-run.png" },
+    { title: "Shorts / Reels", desc: "Contenido breve y viral.", image: "/images/portfolio-brand-product-teaser.png" },
 ];
-
-const aboutCards = [
-    { title: t.about_card_1_title, desc: t.about_card_1_desc },
-    { title: t.about_card_2_title, desc: t.about_card_2_desc },
-    { title: t.about_card_3_title, desc: t.about_card_3_desc },
-    { title: t.about_card_4_title, desc: t.about_card_4_desc },
-];
-
-const stats = [
-    { value: "120+", label: t.stat_1 },
-    { value: "45M", label: t.stat_2 },
-    { value: "72h", label: t.stat_3 },
-];
-
-const heroImageSrc = getPublicImagePath("hero-showreel-cover");
-const pageDescription = t.hero_desc;
-const mediaPlaceholderLabel = activeLang === "es" ? "Vista previa temporal" : "Temporary preview";
-const mediaFrameLabel = activeLang === "es" ? "Marco premium" : "Premium frame";
 ---
 
 <html lang={activeLang}>
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>POLOBK Studios · {t.hero_title_b}</title>
-        <meta name="description" content={pageDescription} />
-        <meta property="og:title" content="POLOBK Studios" />
-        <meta property="og:description" content={pageDescription} />
+        <title>POL Producciones</title>
+        <meta name="description" content={labels.heroDesc} />
+        <meta property="og:title" content="POL Producciones" />
+        <meta property="og:description" content={labels.heroDesc} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={currentUrl} />
-        <meta property="og:image" content={`${siteUrl}${heroImageSrc}`} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <link rel="canonical" href={currentUrl} />
+        <meta property="og:image" content={`${siteUrl}${heroImage}`} />
     </head>
 
-    <body class="min-h-screen bg-brand-bg text-brand-text antialiased">
-        <a href="#main-content" class="skip-link">Saltar al contenido</a>
+    <body class="site-bg min-h-screen text-brand-text antialiased">
+        <header class="border-b border-white/20">
+            <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
+                <a href={`/${activeLang}/`} class="text-3xl font-black italic tracking-tight">POL <span class="text-brand-accent text-xs not-italic">PRODUCCIONES</span></a>
 
-        <header class="sticky top-0 z-50 border-b border-brand-accent/30 bg-brand-bg/85 backdrop-blur">
-            <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-                <a href={`/${activeLang}/`} class="font-semibold tracking-wide" aria-label="POLOBK Studios home">
-                    POLOBK<span class="text-brand-accent">.</span> Studios
-                </a>
-
-                <nav class="hidden gap-6 text-sm text-white/80 md:flex" aria-label="Main navigation">
-                    <a href="#showreel" class="hover:text-white">{t.nav_showreel}</a>
-                    <a href="#services" class="hover:text-white">{t.nav_services}</a>
-                    <a href="#about" class="hover:text-white">{t.nav_about}</a>
-                    <a href="#contact" class="hover:text-white">{t.nav_contact}</a>
+                <nav class="hidden items-center gap-8 text-sm md:flex">
+                    <a href="#">{t.nav_home}</a>
+                    <a href="#featured">Trabajos</a>
+                    <a href="#services">{t.nav_services}</a>
+                    <a href="#">{t.nav_about}</a>
+                    <a href="#">{labels.process}</a>
+                    <a href="#contact">{t.nav_contact}</a>
                 </nav>
 
-                <div class="flex items-center gap-2">
-                    <a class="btn-primary hidden rounded-full px-4 py-2 text-sm font-semibold text-black md:inline-block" href="#contact">
-                        {t.cta_quote}
-                    </a>
-
-                    <div class="flex gap-1 rounded-full border border-brand-accent/30 p-1 text-xs" aria-label="Language switcher">
-                        <a class={`lang-pill rounded-full px-2 py-1 ${activeLang === "es" ? "lang-pill-active" : ""}`} href="/es/" aria-current={activeLang === "es" ? "page" : undefined}>ES</a>
-                        <a class={`lang-pill rounded-full px-2 py-1 ${activeLang === "en" ? "lang-pill-active" : ""}`} href="/en/" aria-current={activeLang === "en" ? "page" : undefined}>EN</a>
-                    </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <a class="gold-btn rounded-md px-6 py-2 font-bold text-black" href="#contact">{labels.cta}</a>
+                    <a class={activeLang === "es" ? "text-brand-accent" : "text-white/70"} href="/es/">ES</a>
+                    <span class="text-white/50">|</span>
+                    <a class={activeLang === "en" ? "text-brand-accent" : "text-white/70"} href="/en/">EN</a>
                 </div>
             </div>
         </header>
 
-        <main id="main-content">
-            <section class="relative">
-                <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
-                    <div>
-                        <p class="text-sm text-white/60">{t.hero_kicker}</p>
-                        <h1 class="mt-3 text-4xl font-extrabold leading-tight md:text-5xl">
-                            {t.hero_title_a}
-                            <span class="block text-brand-accent">{t.hero_title_b}</span>
-                        </h1>
-                        <p class="mt-4 max-w-prose text-white/70">{t.hero_desc}</p>
-
-                        <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-                            <a class="btn-secondary rounded-full px-6 py-3 text-sm font-semibold" href="#showreel">{t.hero_showreel}</a>
-                            <a class="btn-primary rounded-full px-6 py-3 text-sm font-semibold text-black" href="#contact">{t.hero_contact}</a>
-                        </div>
-
-                        <div class="mt-10 grid grid-cols-3 gap-4">
-                            {stats.map((stat) => (
-                                <div class="rounded-2xl border border-brand-accent/20 frame-surface px-4 py-4">
-                                    <p class="text-lg font-semibold text-brand-accent">{stat.value}</p>
-                                    <p class="text-xs text-white/60">{stat.label}</p>
-                                </div>
-                            ))}
-                        </div>
+        <main class="mx-auto max-w-6xl px-4 pb-20">
+            <section class="grid gap-8 py-10 md:grid-cols-[1fr_1.2fr] md:py-14">
+                <div>
+                    <h1 class="text-5xl font-black leading-[0.95] md:text-7xl">{labels.heroTitle}</h1>
+                    <p class="mt-6 max-w-md text-2xl text-white/85">{labels.heroDesc}</p>
+                    <div class="mt-8 flex gap-3">
+                        <a class="gold-btn rounded-md px-8 py-3 text-xl font-bold text-black" href="#">{labels.watch}</a>
+                        <a class="rounded-md border border-white/40 px-8 py-3 text-xl" href="#contact">{labels.contact}</a>
                     </div>
-
-                    <div class="rounded-3xl border border-brand-accent/20 frame-surface p-5">
-                        <div class="mb-4 flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-white/45">
-                            <span class="rounded-full border border-white/15 bg-black/35 px-3 py-1">{t.hero_showreel}</span>
-                            <span>{mediaFrameLabel}</span>
-                        </div>
-
-                        <div class={`media-shell media-frame relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10 ${heroImageSrc ? "" : "media-fallback"}`}>
-                            {heroImageSrc ? (
-                                <img src={heroImageSrc} alt={t.hero_showreel} class="absolute inset-0 h-full w-full object-cover" fetchpriority="high" decoding="async" onerror="this.classList.add('is-hidden'); const shell=this.closest('.media-shell'); if (shell) shell.classList.add('media-fallback');" />
-                            ) : null}
-                            <div class="media-fallback-layer absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-white/65">{mediaPlaceholderLabel}</div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/45"></div>
-                            <div class="absolute right-4 top-4 rounded-full border border-white/20 bg-black/50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-white/75">
-                                {mediaPlaceholderLabel}
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="rounded-full border border-white/20 bg-black/50 px-4 py-2 text-xs text-white/90">{t.hero_showreel}</span>
-                            </div>
-                            <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-2 text-xs text-white/75">
-                                <div class="flex items-center gap-2">
-                                    <span class="h-2 w-2 rounded-full bg-brand-accent"></span>
-                                    <span>{t.hero_showreel_hint}</span>
-                                </div>
-                                <span class="rounded-full border border-white/20 bg-black/50 px-3 py-1">4K · Color · Audio</span>
-                            </div>
-                        </div>
-                        <p class="mt-4 text-xs text-white/60">{t.hero_tip}</p>
+                    <div class="mt-8 flex gap-10 text-4xl font-black">
+                        <p>+120 <span class="text-xl font-medium text-white/70">Proyectos</span></p>
+                        <p>+30M <span class="text-xl font-medium text-white/70">Vistas</span></p>
                     </div>
+                </div>
+
+                <article class="gold-frame relative overflow-hidden rounded-sm p-5">
+                    <img src={heroImage} alt="Reel principal" class="h-full w-full object-cover opacity-75" />
+                    <div class="absolute inset-5 bg-gradient-to-t from-black via-black/20 to-black/60"></div>
+                    <h2 class="absolute left-10 top-10 text-5xl font-bold">{labels.reel}</h2>
+                    <div class="absolute bottom-9 left-10 flex gap-3 text-base">
+                        <span class="rounded bg-black/75 px-4 py-2">▾ Case Studies</span>
+                        <span class="rounded bg-black/75 px-4 py-2">▾ Edición · Color · Audio</span>
+                    </div>
+                </article>
+            </section>
+
+            <section id="featured" class="border-t border-white/25 py-8">
+                <h2 class="mb-5 text-4xl font-black">{labels.featured}</h2>
+                <div class="grid gap-4 md:grid-cols-3">
+                    {featuredProjects.map((item) => (
+                        <article class="project-card overflow-hidden border border-white/20 bg-black/50">
+                            <div class="relative h-56">
+                                <img src={item.image} alt={item.title} class="h-full w-full object-cover" />
+                                <span class="absolute left-4 top-4 rounded bg-black/80 px-3 py-1 text-sm font-semibold">{item.tag}</span>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="text-4xl font-bold">{item.title}</h3>
+                                <p class="mt-2 text-xl text-white/75">{item.desc}</p>
+                                <button class="gold-btn mt-4 rounded px-4 py-2 font-bold text-black">Ver Proyecto</button>
+                            </div>
+                        </article>
+                    ))}
                 </div>
             </section>
 
-            <section id="showreel" class="border-t border-brand-accent/20">
-                <div class="mx-auto max-w-6xl px-4 py-14">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-white/40">{t.showreel_kicker}</p>
-                            <h2 class="mt-2 text-2xl font-bold">{t.showreel_title}</h2>
-                        </div>
-                        <a class="text-sm text-brand-accent hover:underline" href="#contact">{t.showreel_cta}</a>
-                    </div>
-
-                    <div class="mt-8 grid gap-4 md:grid-cols-2">
-                        {featuredVideos.map((video) => {
-                            const imageSrc = getPublicImagePath(video.imageBase);
-                            return (
-                                <article class="group rounded-3xl border border-brand-accent/20 frame-surface p-6 transition hover:border-brand-accent/40">
-                                    <div class="flex items-center justify-between text-xs text-white/50">
-                                        <span class="rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/70">{video.tag}</span>
-                                        <span>{video.year}</span>
-                                    </div>
-                                    <div class={`media-shell media-frame relative mt-4 aspect-[16/10] w-full overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10 ${imageSrc ? "" : "media-fallback"}`}>
-                                        {imageSrc ? (<img src={imageSrc} alt={video.title} class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" onerror="this.classList.add('is-hidden'); const shell=this.closest('.media-shell'); if (shell) shell.classList.add('media-fallback');" />) : null}
-                                        <div class="media-fallback-layer absolute inset-0 flex items-center justify-center px-4 text-center text-xs text-white/65">{mediaPlaceholderLabel}</div>
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/45"></div>
-                                        <div class="absolute left-3 top-3 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/80">
-                                            {video.tag}
-                                        </div>
-                                        <div class="absolute bottom-3 right-3 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/80">
-                                            {video.duration}
-                                        </div>
-                                        <div class="relative flex h-full items-center justify-center">
-                                            <button class="group/play relative flex h-14 w-14 items-center justify-center rounded-full bg-blue-500/90 text-white shadow-[0_12px_30px_rgba(59,130,246,0.45)] transition duration-300 hover:scale-105 hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300" type="button" aria-label={`${t.showreel_play}: ${video.title}`}>
-                                                <span class="pointer-events-none absolute inset-0 rounded-full bg-blue-400/40 blur-xl opacity-60 transition duration-300 group-hover/play:opacity-100"></span>
-                                                <svg class="relative z-10 ml-0.5 h-5 w-5" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <h3 class="mt-4 text-lg font-semibold group-hover:text-brand-accent">{video.title}</h3>
-                                    <p class="mt-2 text-sm text-white/60">{t.showreel_desc}</p>
-                                    <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                                        <span>{mediaPlaceholderLabel}</span>
-                                        <span>Asset-ready</span>
-                                    </div>
-                                </article>
-                            );
-                        })}
-                    </div>
-                </div>
-            </section>
-
-            <section id="services" class="border-t border-brand-accent/20">
-                <div class="mx-auto max-w-6xl px-4 py-14">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-white/40">{t.services_kicker}</p>
-                            <h2 class="mt-2 text-2xl font-bold">{t.section_services}</h2>
-                        </div>
-                        <span class="text-sm text-white/50">{t.services_subtitle}</span>
-                    </div>
-
-                    <div class="mt-8 grid gap-4 md:grid-cols-2">
-                        {[
-                            { title: t.service_1_title, desc: t.service_1_desc },
-                            { title: t.service_2_title, desc: t.service_2_desc },
-                            { title: t.service_3_title, desc: t.service_3_desc },
-                            { title: t.service_4_title, desc: t.service_4_desc },
-                        ].map((service) => (
-                            <article class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
-                                <h3 class="text-lg font-semibold">{service.title}</h3>
-                                <p class="mt-2 text-sm text-white/70">{service.desc}</p>
-                                <div class="mt-4 text-xs text-white/40">{t.service_tags}</div>
-                            </article>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section id="about" class="border-t border-brand-accent/20">
-                <div class="mx-auto max-w-6xl px-4 py-14">
-                    <div class="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-white/40">{t.about_kicker}</p>
-                            <h2 class="mt-2 text-3xl font-bold">{t.about_title}</h2>
-                            <p class="mt-4 text-white/70">{t.about_desc}</p>
-                            <div class="mt-6 flex flex-wrap gap-3">
-                                <span class="rounded-full border border-brand-accent/20 frame-surface px-4 py-2 text-xs text-white/60">{t.about_tag_1}</span>
-                                <span class="rounded-full border border-brand-accent/20 frame-surface px-4 py-2 text-xs text-white/60">{t.about_tag_2}</span>
-                                <span class="rounded-full border border-brand-accent/20 frame-surface px-4 py-2 text-xs text-white/60">{t.about_tag_3}</span>
+            <section id="services" class="border-t border-white/25 py-8">
+                <h2 class="mb-5 text-4xl font-black">{labels.premium}</h2>
+                <div class="grid gap-4 md:grid-cols-4">
+                    {services.map((item) => (
+                        <article class="project-card overflow-hidden border border-white/20 bg-black/50">
+                            <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
+                            <div class="p-5">
+                                <h3 class="text-4xl font-bold">{item.title}</h3>
+                                <p class="mt-2 text-xl text-white/75">{item.desc}</p>
                             </div>
-                        </div>
-
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            {aboutCards.map((card) => (
-                                <article class="rounded-3xl border border-brand-accent/20 frame-surface p-5">
-                                    <h3 class="text-sm font-semibold text-brand-accent">{card.title}</h3>
-                                    <p class="mt-2 text-sm text-white/70">{card.desc}</p>
-                                </article>
-                            ))}
-                        </div>
-                    </div>
+                        </article>
+                    ))}
                 </div>
             </section>
 
-            <section class="border-t border-brand-accent/20">
-                <div class="mx-auto max-w-6xl px-4 py-14">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-white/40">{t.process_kicker}</p>
-                            <h2 class="mt-2 text-2xl font-bold">{t.process_title}</h2>
-                        </div>
-                        <p class="text-sm text-white/60">{t.process_subtitle}</p>
-                    </div>
-
-                    <div class="mt-8 grid gap-4 md:grid-cols-2">
-                        {processSteps.map((step, index) => (
-                            <article class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xs text-brand-accent">0{index + 1}</span>
-                                    <h3 class="text-lg font-semibold">{step.step}</h3>
-                                </div>
-                                <p class="mt-3 text-sm text-white/70">{step.desc}</p>
-                            </article>
-                        ))}
-                    </div>
+            <section id="contact" class="grid gap-8 border-t border-white/25 py-12 md:grid-cols-2">
+                <div>
+                    <h2 class="text-5xl font-black">{labels.ready}</h2>
+                    <p class="mt-5 text-3xl text-white/85">{labels.readyDesc}</p>
+                    <p class="mt-4 text-lg text-white/65">{labels.location}</p>
+                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href="#">{labels.contact}</a>
                 </div>
-            </section>
 
-            <section id="contact" class="border-t border-brand-accent/20">
-                <div class="mx-auto max-w-6xl px-4 py-14">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-white/40">{t.contact_kicker}</p>
-                            <h2 class="mt-2 text-2xl font-bold">{t.contact_title}</h2>
-                        </div>
-                        <span class="text-sm text-white/60">{t.contact_subtitle}</span>
+                <form class="border border-white/25 bg-black/40 p-6">
+                    <input class="form-line" placeholder={t.form_name} />
+                    <input class="form-line" placeholder={t.form_email} />
+                    <textarea class="form-line h-28" placeholder={t.form_message}></textarea>
+                    <div class="mt-6 text-right">
+                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{labels.send}</button>
                     </div>
-                    <p class="mt-4 max-w-prose text-white/70">{t.contact_desc}</p>
-
-                    <div class="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-                        <div class="rounded-3xl border border-brand-accent/20 frame-surface p-6">
-                            <form class="grid gap-4 text-sm text-white/70" novalidate>
-                                <label class="sr-only" for="name">{t.form_name}</label>
-                                <input id="name" name="name" class="form-field rounded-2xl border bg-black/40 px-4 py-3" placeholder={t.form_name} autocomplete="name" required />
-
-                                <label class="sr-only" for="email">{t.form_email}</label>
-                                <input id="email" name="email" type="email" class="form-field rounded-2xl border bg-black/40 px-4 py-3" placeholder={t.form_email} autocomplete="email" required />
-
-                                <label class="sr-only" for="project">{t.form_project}</label>
-                                <input id="project" name="project" class="form-field rounded-2xl border bg-black/40 px-4 py-3" placeholder={t.form_project} autocomplete="organization-title" required />
-
-                                <label class="sr-only" for="message">{t.form_message}</label>
-                                <textarea id="message" name="message" class="form-field min-h-35 rounded-2xl border bg-black/40 px-4 py-3" placeholder={t.form_message} required></textarea>
-
-                                <button class="btn-primary rounded-full px-6 py-3 text-sm font-semibold text-black" type="submit">{t.form_submit}</button>
-                            </form>
-                        </div>
-
-                        <aside class="rounded-3xl border border-brand-accent/20 frame-surface p-6" aria-label="Direct contact details">
-                            <p class="text-sm text-white/60">{t.contact_side_title}</p>
-                            <p class="mt-3 text-lg font-semibold">{t.contact_side_email}</p>
-                            <div class="mt-6 border-t border-brand-accent/20 pt-6 text-sm text-white/60">
-                                <p>{t.contact_side_location}</p>
-                                <p class="mt-2">{t.contact_side_hours}</p>
-                            </div>
-                            <div class="mt-6 rounded-2xl border border-brand-accent/20 bg-black/40 px-4 py-3 text-xs text-white/50">{t.contact_side_note}</div>
-                        </aside>
-                    </div>
-                </div>
+                </form>
             </section>
         </main>
-
-        <footer class="border-t border-brand-accent/20">
-            <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-10 text-sm text-white/50 md:flex-row md:items-center md:justify-between">
-                <p>© {new Date().getFullYear()} POLOBK Studios</p>
-                <p>Black + White + <span class="text-brand-accent">Yellow</span></p>
-            </div>
-        </footer>
     </body>
 </html>
