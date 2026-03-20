@@ -1,0 +1,72 @@
+---
+import type { ActiveLang } from "../../i18n";
+import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
+import "../../styles/global.css";
+
+export async function getStaticPaths() {
+    return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang?: ActiveLang };
+const activeLang = lang ?? DEFAULT_LANG;
+const t = await getDict(activeLang);
+
+const isEs = activeLang === "es";
+
+const labels = isEs
+    ? {
+        pageTitle: "Contactar | POL Producciones",
+        pageDescription: "Formulario de contacto de POL Producciones.",
+        back: "Volver al inicio",
+        heading: "Cuéntame tu proyecto",
+        subtitle: "Contacto",
+        readyDesc: "Respuesta en menos de 24 horas.",
+        send: "Enviar",
+    }
+    : {
+        pageTitle: "Contact | POL Producciones",
+        pageDescription: "Contact form for POL Producciones.",
+        back: "Back to home",
+        heading: "Tell me about your project",
+        subtitle: "Contact",
+        readyDesc: "Reply within 24 hours.",
+        send: "Send",
+    };
+---
+
+<html lang={activeLang}>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{labels.pageTitle}</title>
+        <meta name="description" content={labels.pageDescription} />
+    </head>
+
+    <body class="site-bg min-h-screen text-brand-text antialiased">
+        <main class="mx-auto max-w-4xl px-4 py-14 md:py-20">
+            <a href={`/${activeLang}/`} class="inline-block rounded border border-white/30 px-4 py-2 text-sm text-white/80 hover:border-white/60">← {labels.back}</a>
+
+            <section class="scroll-section mt-8 rounded-xl border border-white/20 bg-black/45 p-6 md:p-10">
+                <p class="text-sm tracking-[0.2em] text-brand-accent">{labels.subtitle.toUpperCase()}</p>
+                <h1 class="mt-3 text-4xl font-black md:text-6xl">{labels.heading}</h1>
+                <p class="mt-5 text-white/80">{labels.readyDesc}</p>
+
+                <form class="mt-8 border border-white/25 bg-black/40 p-6">
+                    <input class="form-line" placeholder={t.form_name} />
+                    <input class="form-line" placeholder={t.form_email} />
+                    <textarea class="form-line h-28" placeholder={t.form_message}></textarea>
+                    <div class="mt-6 text-right">
+                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{labels.send}</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+
+        <script is:inline>
+            const section = document.querySelector(".scroll-section");
+            if (section) {
+                requestAnimationFrame(() => section.classList.add("is-visible"));
+            }
+        </script>
+    </body>
+</html>

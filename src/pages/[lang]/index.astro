@@ -86,11 +86,11 @@ const services = [
                     <a href={`/${activeLang}/proceso/`}>{labels.process}</a>
                     <a href={`/${activeLang}/sobre-mi/`}>{t.nav_about}</a>
                     <a href="#services">{labels.process}</a>
-                    <a href="#contact">{t.nav_contact}</a>
+                    <a href={`/${activeLang}/contacto/`}>{t.nav_contact}</a>
                 </nav>
 
                 <div class="flex items-center gap-3 text-sm">
-                    <a class="gold-btn rounded-md px-6 py-2 font-bold text-black" href="#contact">{labels.cta}</a>
+                    <a class="gold-btn rounded-md px-6 py-2 font-bold text-black" href={`/${activeLang}/contacto/`}>{labels.cta}</a>
                     <a class={activeLang === "es" ? "text-brand-accent" : "text-white/70"} href="/es/">ES</a>
                     <span class="text-white/50">|</span>
                     <a class={activeLang === "en" ? "text-brand-accent" : "text-white/70"} href="/en/">EN</a>
@@ -105,7 +105,7 @@ const services = [
                     <p class="mt-6 max-w-md text-2xl text-white/85">{labels.heroDesc}</p>
                     <div class="mt-8 flex gap-3">
                         <a class="gold-btn rounded-md px-8 py-3 text-xl font-bold text-black" href="#">{labels.watch}</a>
-                        <a class="rounded-md border border-white/40 px-8 py-3 text-xl" href="#contact">{labels.contact}</a>
+                        <a class="rounded-md border border-white/40 px-8 py-3 text-xl" href={`/${activeLang}/contacto/`}>{labels.contact}</a>
                     </div>
                     <div class="mt-8 flex gap-10 text-4xl font-black">
                         <p>+120 <span class="text-xl font-medium text-white/70">Proyectos</span></p>
@@ -165,7 +165,7 @@ const services = [
                     <h2 class="text-5xl font-black">{labels.ready}</h2>
                     <p class="mt-5 text-3xl text-white/85">{labels.readyDesc}</p>
                     <p class="mt-4 text-lg text-white/65">{labels.location}</p>
-                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href="#">{labels.contact}</a>
+                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{labels.contact}</a>
                 </div>
 
                 <form class="border border-white/25 bg-black/40 p-6">
