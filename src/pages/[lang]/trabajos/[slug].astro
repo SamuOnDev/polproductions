@@ -1,7 +1,8 @@
 ---
 import type { ActiveLang } from "../../../i18n";
-import { LANGS, DEFAULT_LANG } from "../../../i18n";
+import { LANGS, DEFAULT_LANG, getDict } from "../../../i18n";
 import { getProjectBySlug, projects } from "../../../data/projects";
+import SiteHeader from "../../../components/SiteHeader.astro";
 import "../../../styles/global.css";
 
 export async function getStaticPaths() {
@@ -10,35 +11,12 @@ export async function getStaticPaths() {
 
 const { lang, slug } = Astro.params as { lang?: ActiveLang; slug?: string };
 const activeLang = lang ?? DEFAULT_LANG;
+const t = await getDict(activeLang);
 const project = slug ? getProjectBySlug(slug) : undefined;
 
 if (!project) {
     return Astro.redirect(`/${activeLang}/trabajos/`);
 }
-
-const labels = activeLang === "es"
-    ? {
-        back: "← Volver atrás",
-        breadcrumb: "Proyecto Destacado",
-        visit: "Visitar video",
-        details: "DETALLES DEL PROYECTO",
-        detailIntro: "Explicación detallada del proyecto junto con el proceso creativo y los objetivos logrados.",
-        results: "Resultados",
-        ready: "¿LISTO PARA HACER TU VIDEO?",
-        readyDesc: "Háblame sobre tu proyecto y empecemos.",
-        contact: "Contáctame",
-    }
-    : {
-        back: "← Back",
-        breadcrumb: "Featured Project",
-        visit: "Visit video",
-        details: "PROJECT DETAILS",
-        detailIntro: "Detailed overview of the project, the creative process and the outcomes achieved.",
-        results: "Results",
-        ready: "READY TO CREATE YOUR VIDEO?",
-        readyDesc: "Tell me about your project and let's get started.",
-        contact: "Contact me",
-    };
 ---
 
 <html lang={activeLang}>
@@ -49,17 +27,12 @@ const labels = activeLang === "es"
     </head>
 
     <body class="site-bg min-h-screen text-brand-text antialiased">
-        <header class="site-header border-b border-white/20">
-            <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-                <a href={`/${activeLang}/`} class="text-3xl font-black italic tracking-tight">POL <span class="text-brand-accent text-xs not-italic">PRODUCCIONES</span></a>
-                <a class="gold-btn rounded-md px-6 py-2 font-bold text-black" href="#contact">{labels.contact}</a>
-            </div>
-        </header>
+        <SiteHeader activeLang={activeLang} t={t} />
 
         <main class="mx-auto max-w-6xl px-4 pb-20 pt-28 md:pt-32">
             <div class="scroll-section flex flex-wrap items-center gap-3 text-white/70">
-                <a class="back-link-frame" href={`/${activeLang}/trabajos/`}>{labels.back}</a>
-                <span class="text-xl text-white/60">/ {labels.breadcrumb}</span>
+                <a class="back-link-frame" href={`/${activeLang}/trabajos/`}>← {t.project_back}</a>
+                <span class="text-xl text-white/60">/ {t.project_breadcrumb}</span>
             </div>
 
             <section class="scroll-section mt-6 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
@@ -74,7 +47,7 @@ const labels = activeLang === "es"
                     <div class="project-card mt-6 border border-white/15 bg-black/35 p-4">
                         <p class="text-white/75">Tints. 🎥 🎬 🎯 ⚙️ 🧪</p>
                         <p class="mt-4 text-white/80">Tech stack: {project.stack.join(" · ")}</p>
-                        <a href="#" class="gold-btn mt-4 inline-flex rounded-md px-6 py-3 text-xl font-bold text-black">▶ {labels.visit}</a>
+                        <a href="#" class="gold-btn mt-4 inline-flex rounded-md px-6 py-3 text-xl font-bold text-black">▶ {t.project_visit}</a>
                     </div>
                 </article>
 
@@ -84,10 +57,10 @@ const labels = activeLang === "es"
             </section>
 
             <section class="scroll-section mt-12 border-t border-white/20 pt-8">
-                <h2 class="text-4xl font-black">{labels.details}</h2>
+                <h2 class="text-4xl font-black">{t.project_details}</h2>
                 <div class="project-card mt-5 grid border border-white/15 bg-black/40 lg:grid-cols-[1.9fr_1fr]">
                     <article class="p-6 lg:border-r lg:border-white/10">
-                        <p class="text-xl text-white/80">{labels.detailIntro}</p>
+                        <p class="text-xl text-white/80">{t.project_detail_intro}</p>
                         <ul class="mt-4 list-disc space-y-2 pl-6 text-2xl text-white/90">
                             {project.objectives.map((objective) => <li>{objective}</li>)}
                         </ul>
@@ -103,7 +76,7 @@ const labels = activeLang === "es"
                     </article>
 
                     <aside class="p-6">
-                        <h3 class="text-5xl font-black">{labels.results}</h3>
+                        <h3 class="text-5xl font-black">{t.project_results}</h3>
                         <ul class="mt-6 space-y-4 text-3xl text-white/90">
                             {project.results.map((result) => <li class="border-b border-white/10 pb-3">✅ {result}</li>)}
                         </ul>
@@ -113,16 +86,16 @@ const labels = activeLang === "es"
 
             <section id="contact" class="scroll-section mt-12 grid gap-8 lg:grid-cols-2">
                 <div>
-                    <h2 class="text-5xl font-black">{labels.ready}</h2>
-                    <p class="mt-4 text-2xl text-white/75">{labels.readyDesc}</p>
-                    <a class="gold-btn mt-6 inline-block rounded-md px-8 py-3 text-2xl font-bold text-black" href="#">{labels.contact}</a>
+                    <h2 class="text-5xl font-black">{t.project_ready}</h2>
+                    <p class="mt-4 text-2xl text-white/75">{t.project_ready_desc}</p>
+                    <a class="gold-btn mt-6 inline-block rounded-md px-8 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{t.project_contact}</a>
                 </div>
 
                 <form class="project-card border border-white/20 bg-black/30 p-6">
-                    <input class="form-line" placeholder="Email" />
-                    <textarea class="form-line mt-6 h-28" placeholder="Mensaje"></textarea>
+                    <input class="form-line" placeholder={t.form_email} />
+                    <textarea class="form-line mt-6 h-28" placeholder={t.form_message}></textarea>
                     <div class="mt-8 text-right">
-                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{labels.contact}</button>
+                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{t.form_submit}</button>
                     </div>
                 </form>
             </section>

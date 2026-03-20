@@ -1,6 +1,7 @@
 ---
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
+import SiteHeader from "../../components/SiteHeader.astro";
 import "../../styles/global.css";
 
 export async function getStaticPaths() {
@@ -10,48 +11,6 @@ export async function getStaticPaths() {
 const { lang } = Astro.params as { lang?: ActiveLang };
 const activeLang = lang ?? DEFAULT_LANG;
 const t = await getDict(activeLang);
-
-const copy = activeLang === "es"
-    ? {
-        pageTitle: "Proceso | POL Producciones",
-        pageDescription: "Así llevamos tu proyecto audiovisual desde la idea inicial hasta la entrega final.",
-        back: "Volver al inicio",
-        cta: "Quiero empezar mi proyecto",
-        intro: "Trabajamos contigo como una presentación profesional: orden, claridad y resultados visibles en cada fase.",
-        guaranteeTitle: "Compromiso en cada etapa",
-        guarantees: [
-            "Plan de trabajo definido desde el primer día.",
-            "Comunicación constante por hitos.",
-            "Entregas pensadas para rendimiento en plataformas.",
-        ],
-        blockTitle: "Del concepto al video final",
-        blockDesc: "Este es el flujo completo que seguimos para que tu grabación tenga narrativa, ritmo y acabado premium.",
-        duration: "Duración estimada",
-        durationValue: "7-14 días según alcance",
-        closeTitle: "Tu proyecto, con una ruta clara",
-        closeDesc: "Si quieres un proceso profesional y sin caos, diseñamos el roadmap de tu producción y arrancamos esta misma semana.",
-        closeSide: "Te respondemos en menos de 24h con tiempos, enfoque y propuesta inicial.",
-    }
-    : {
-        pageTitle: "Process | POL Producciones",
-        pageDescription: "How we move your audiovisual project from initial concept to final delivery.",
-        back: "Back to home",
-        cta: "Start my project",
-        intro: "We work with you like a professional presentation: clear structure, clear communication, and visible outcomes at every stage.",
-        guaranteeTitle: "Commitment at every stage",
-        guarantees: [
-            "Defined production roadmap from day one.",
-            "Consistent milestone-based communication.",
-            "Deliverables optimized for platform performance.",
-        ],
-        blockTitle: "From concept to final video",
-        blockDesc: "This is the complete flow we follow so your video has strong storytelling, pacing and premium finish.",
-        duration: "Estimated timeline",
-        durationValue: "7-14 days depending on scope",
-        closeTitle: "Your project, with a clear path",
-        closeDesc: "If you want a professional zero-chaos process, we can map your production roadmap and kick off this week.",
-        closeSide: "We reply in under 24h with timing, approach and an initial proposal.",
-    };
 
 const steps = [
     { number: "01", title: t.process_step_1_title, desc: t.process_step_1_desc },
@@ -65,27 +24,29 @@ const steps = [
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>{copy.pageTitle}</title>
-        <meta name="description" content={copy.pageDescription} />
+        <title>{t.process_page_title}</title>
+        <meta name="description" content={t.process_page_description} />
     </head>
 
     <body class="site-bg min-h-screen text-brand-text antialiased">
-        <main class="mx-auto max-w-6xl px-4 pb-16 pt-10 md:pt-14">
-            <a href={`/${activeLang}/`} class="inline-flex items-center gap-2 text-sm text-white/70 transition hover:text-brand-accent">← {copy.back}</a>
+        <SiteHeader activeLang={activeLang} t={t} />
 
-            <section class="scroll-section mt-8 rounded-xl border border-white/20 bg-black/45 p-8 md:p-12">
+        <main class="mx-auto max-w-6xl px-4 pb-16 pt-28 md:pt-32">
+            <section class="scroll-section rounded-xl border border-white/20 bg-black/45 p-8 md:p-12">
                 <p class="text-sm uppercase tracking-[0.18em] text-brand-accent">{t.process_kicker}</p>
                 <h1 class="mt-4 max-w-3xl text-4xl font-black md:text-6xl">{t.process_title}</h1>
-                <p class="mt-6 max-w-3xl text-xl text-white/80 md:text-2xl">{copy.intro}</p>
+                <p class="mt-6 max-w-3xl text-xl text-white/80 md:text-2xl">{t.process_intro}</p>
                 <div class="mt-7 grid gap-4 sm:grid-cols-2">
                     <div class="rounded-lg border border-white/20 bg-white/[0.03] p-5">
-                        <p class="text-sm uppercase tracking-[0.12em] text-white/65">{copy.duration}</p>
-                        <p class="mt-2 text-3xl font-black">{copy.durationValue}</p>
+                        <p class="text-sm uppercase tracking-[0.12em] text-white/65">{t.process_duration}</p>
+                        <p class="mt-2 text-3xl font-black">{t.process_duration_value}</p>
                     </div>
                     <div class="rounded-lg border border-white/20 bg-white/[0.03] p-5">
-                        <p class="text-sm uppercase tracking-[0.12em] text-white/65">{copy.guaranteeTitle}</p>
+                        <p class="text-sm uppercase tracking-[0.12em] text-white/65">{t.process_guarantee_title}</p>
                         <ul class="mt-3 space-y-2 text-base text-white/85">
-                            {copy.guarantees.map((item) => (<li>• {item}</li>))}
+                            <li>• {t.process_guarantee_1}</li>
+                            <li>• {t.process_guarantee_2}</li>
+                            <li>• {t.process_guarantee_3}</li>
                         </ul>
                     </div>
                 </div>
@@ -93,8 +54,8 @@ const steps = [
 
             <section class="scroll-section mt-10">
                 <div class="mb-6">
-                    <h2 class="text-3xl font-black md:text-5xl">{copy.blockTitle}</h2>
-                    <p class="mt-3 max-w-3xl text-lg text-white/75 md:text-xl">{copy.blockDesc}</p>
+                    <h2 class="text-3xl font-black md:text-5xl">{t.process_block_title}</h2>
+                    <p class="mt-3 max-w-3xl text-lg text-white/75 md:text-xl">{t.process_block_desc}</p>
                 </div>
 
                 <div class="relative grid gap-5">
@@ -111,12 +72,12 @@ const steps = [
 
             <section class="scroll-section mt-10 grid gap-5 rounded-xl border border-white/20 bg-black/45 p-8 md:grid-cols-[1.2fr_1fr] md:p-10">
                 <div>
-                    <h2 class="text-3xl font-black md:text-5xl">{copy.closeTitle}</h2>
-                    <p class="mt-4 text-lg text-white/80 md:text-xl">{copy.closeDesc}</p>
-                    <a href={`/${activeLang}/#contact`} class="gold-btn mt-7 inline-block rounded-md px-7 py-3 text-lg font-bold text-black">{copy.cta}</a>
+                    <h2 class="text-3xl font-black md:text-5xl">{t.process_close_title}</h2>
+                    <p class="mt-4 text-lg text-white/80 md:text-xl">{t.process_close_desc}</p>
+                    <a href={`/${activeLang}/#contact`} class="gold-btn mt-7 inline-block rounded-md px-7 py-3 text-lg font-bold text-black">{t.process_cta}</a>
                 </div>
                 <aside class="rounded-lg border border-brand-accent/40 bg-brand-accent/[0.08] p-5 text-white/90">
-                    <p class="text-lg">{copy.closeSide}</p>
+                    <p class="text-lg">{t.process_close_side}</p>
                 </aside>
             </section>
         </main>
