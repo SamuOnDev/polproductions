@@ -57,9 +57,12 @@ const labels = activeLang === "es"
         </header>
 
         <main class="mx-auto max-w-6xl px-4 pb-20 pt-28 md:pt-32">
-            <p class="text-2xl text-white/70">{labels.back} / {labels.breadcrumb}</p>
+            <div class="scroll-section flex flex-wrap items-center gap-3 text-white/70">
+                <a class="back-link-frame" href={`/${activeLang}/trabajos/`}>{labels.back}</a>
+                <span class="text-xl text-white/60">/ {labels.breadcrumb}</span>
+            </div>
 
-            <section class="mt-6 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+            <section class="scroll-section mt-6 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
                 <article>
                     <h1 class="text-6xl font-black leading-[1.05]">{project.title}</h1>
                     <p class="mt-5 max-w-md text-2xl text-white/80">{project.description}</p>
@@ -80,7 +83,7 @@ const labels = activeLang === "es"
                 </article>
             </section>
 
-            <section class="mt-12 border-t border-white/20 pt-8">
+            <section class="scroll-section mt-12 border-t border-white/20 pt-8">
                 <h2 class="text-4xl font-black">{labels.details}</h2>
                 <div class="project-card mt-5 grid border border-white/15 bg-black/40 lg:grid-cols-[1.9fr_1fr]">
                     <article class="p-6 lg:border-r lg:border-white/10">
@@ -108,7 +111,7 @@ const labels = activeLang === "es"
                 </div>
             </section>
 
-            <section id="contact" class="mt-12 grid gap-8 lg:grid-cols-2">
+            <section id="contact" class="scroll-section mt-12 grid gap-8 lg:grid-cols-2">
                 <div>
                     <h2 class="text-5xl font-black">{labels.ready}</h2>
                     <p class="mt-4 text-2xl text-white/75">{labels.readyDesc}</p>
@@ -124,5 +127,22 @@ const labels = activeLang === "es"
                 </form>
             </section>
         </main>
+
+        <script is:inline>
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("is-visible");
+                        }
+                    });
+                },
+                { threshold: 0.2, rootMargin: "0px 0px -60px 0px" },
+            );
+
+            document.querySelectorAll(".scroll-section").forEach((section) => {
+                observer.observe(section);
+            });
+        </script>
     </body>
 </html>
