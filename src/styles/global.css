@@ -114,3 +114,23 @@ a {
     background: linear-gradient(180deg, rgb(18 18 20 / 0.95), rgb(8 8 9 / 0.95));
     box-shadow: 0 18px 35px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
+
+.back-link-frame {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgb(255 255 255 / 0.28);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.02));
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.3), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    border-radius: 0.55rem;
+    padding: 0.55rem 0.9rem;
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.86);
+    transition: border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.back-link-frame:hover {
+    border-color: rgb(var(--brand-accent) / 0.85);
+    color: rgb(var(--brand-accent));
+    transform: translateY(-1px);
+}
