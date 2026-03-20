@@ -1,0 +1,89 @@
+---
+import type { ActiveLang } from "../../i18n";
+import { LANGS, DEFAULT_LANG } from "../../i18n";
+import "../../styles/global.css";
+
+export async function getStaticPaths() {
+    return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang?: ActiveLang };
+const activeLang = lang ?? DEFAULT_LANG;
+
+const isEs = activeLang === "es";
+
+const labels = isEs
+    ? {
+        pageTitle: "Sobre mí | POL Producciones",
+        pageDescription: "Carta de presentación profesional de POL Producciones.",
+        back: "Volver al inicio",
+        heading: "Carta de presentación",
+        subtitle: "Sobre mí",
+        greeting: "Estimado/a colaborador/a:",
+        p1: "Soy Pol, fundador de POL Producciones, y me dedico a transformar ideas en piezas audiovisuales con intención, ritmo y resultados medibles.",
+        p2: "Mi enfoque combina dirección visual, grabación en localización y edición estratégica para crear contenidos que no solo se ven bien, sino que también retienen audiencia y comunican valor de marca.",
+        p3: "Trabajo de forma cercana, con procesos claros y tiempos definidos: desde el brief inicial hasta la entrega final. Cada proyecto se desarrolla con una mentalidad profesional, cuidando narrativa, identidad visual y objetivos de negocio.",
+        p4: "Si buscas un perfil creativo y resolutivo para elevar la calidad de tus vídeos, estaré encantado de escucharte y proponerte una solución adaptada a tu proyecto.",
+        farewell: "Atentamente,",
+        signature: "Pol · POL Producciones",
+        note: "Disponible para proyectos de YouTube, videoclips, contenido de marca y producciones IRL.",
+        cta: "Quiero hablar de mi proyecto",
+    }
+    : {
+        pageTitle: "About me | POL Producciones",
+        pageDescription: "Professional introduction letter from POL Producciones.",
+        back: "Back to home",
+        heading: "Introduction letter",
+        subtitle: "About me",
+        greeting: "Dear collaborator,",
+        p1: "I am Pol, founder of POL Producciones, and I focus on turning ideas into audiovisual pieces with purpose, rhythm, and measurable results.",
+        p2: "My approach combines visual direction, on-location shooting, and strategic editing to craft content that not only looks premium, but also keeps audiences engaged and communicates brand value.",
+        p3: "I work closely with each client, using a clear process and defined timelines: from the initial brief to final delivery. Every project is built with a professional mindset, taking care of storytelling, visual identity, and business goals.",
+        p4: "If you are looking for a creative and solution-oriented profile to elevate your videos, I would be glad to hear your vision and propose a tailored plan.",
+        farewell: "Sincerely,",
+        signature: "Pol · POL Producciones",
+        note: "Available for YouTube projects, music videos, brand content, and IRL productions.",
+        cta: "Let's talk about your project",
+    };
+---
+
+<html lang={activeLang}>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{labels.pageTitle}</title>
+        <meta name="description" content={labels.pageDescription} />
+    </head>
+
+    <body class="site-bg min-h-screen text-brand-text antialiased">
+        <main class="mx-auto max-w-4xl px-4 py-14 md:py-20">
+            <a href={`/${activeLang}/`} class="inline-block rounded border border-white/30 px-4 py-2 text-sm text-white/80 hover:border-white/60">← {labels.back}</a>
+
+            <section class="scroll-section mt-8 rounded-xl border border-white/20 bg-black/45 p-6 md:p-10">
+                <p class="text-sm tracking-[0.2em] text-brand-accent">{labels.subtitle.toUpperCase()}</p>
+                <h1 class="mt-3 text-4xl font-black md:text-6xl">{labels.heading}</h1>
+
+                <article class="mt-10 space-y-6 text-lg leading-relaxed text-white/90">
+                    <p>{labels.greeting}</p>
+                    <p>{labels.p1}</p>
+                    <p>{labels.p2}</p>
+                    <p>{labels.p3}</p>
+                    <p>{labels.p4}</p>
+                    <p class="pt-6">{labels.farewell}<br /><strong>{labels.signature}</strong></p>
+                </article>
+
+                <div class="mt-10 border-t border-white/20 pt-6">
+                    <p class="text-white/75">{labels.note}</p>
+                    <a href={`/${activeLang}/#contact`} class="gold-btn mt-5 inline-block rounded-md px-7 py-3 font-bold text-black">{labels.cta}</a>
+                </div>
+            </section>
+        </main>
+
+        <script is:inline>
+            const section = document.querySelector(".scroll-section");
+            if (section) {
+                requestAnimationFrame(() => section.classList.add("is-visible"));
+            }
+        </script>
+    </body>
+</html>
