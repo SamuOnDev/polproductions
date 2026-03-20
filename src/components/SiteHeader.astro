@@ -1,0 +1,41 @@
+---
+import type { ActiveLang } from "../i18n";
+
+type Dict = Record<string, string>;
+
+interface Props {
+  activeLang: ActiveLang;
+  t: Dict;
+}
+
+const { activeLang, t } = Astro.props;
+
+const links = [
+  { href: `/${activeLang}/`, label: t.nav_home },
+  { href: `/${activeLang}/trabajos/`, label: t.nav_portfolio },
+  { href: `/${activeLang}/proceso/`, label: t.nav_process },
+  { href: `/${activeLang}/sobre-mi/`, label: t.nav_about },
+  { href: `/${activeLang}/contacto/`, label: t.nav_contact },
+];
+---
+
+<header class="site-header border-b border-white/20">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5">
+    <a href={`/${activeLang}/`} class="text-2xl font-black italic tracking-tight md:text-3xl">
+      POL <span class="text-brand-accent text-xs not-italic">PRODUCCIONES</span>
+    </a>
+
+    <nav class="hidden items-center gap-6 text-sm md:flex">
+      {links.map((link) => (
+        <a href={link.href} class="text-white/80 transition hover:text-brand-accent">{link.label}</a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-3 text-sm">
+      <a class="gold-btn rounded-md px-4 py-2 font-bold text-black" href={`/${activeLang}/contacto/`}>{t.nav_cta}</a>
+      <a class={activeLang === "es" ? "text-brand-accent" : "text-white/70"} href="/es/">ES</a>
+      <span class="text-white/50">|</span>
+      <a class={activeLang === "en" ? "text-brand-accent" : "text-white/70"} href="/en/">EN</a>
+    </div>
+  </div>
+</header>

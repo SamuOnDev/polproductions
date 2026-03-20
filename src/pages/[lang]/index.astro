@@ -2,6 +2,7 @@
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
 import { projects } from "../../data/projects";
+import SiteHeader from "../../components/SiteHeader.astro";
 import "../../styles/global.css";
 
 export async function getStaticPaths() {
@@ -16,47 +17,13 @@ const siteUrl = Astro.site ? Astro.site.origin : "https://polobkstudios.com";
 const currentUrl = `${siteUrl}/${activeLang}/`;
 const heroImage = "/images/hero-showreel-cover.jpg";
 
-const labels = activeLang === "es"
-    ? {
-        cta: "Hablemos",
-        process: "Proceso",
-        heroTitle: "VISUALES QUE PARECEN CAROS Y RETIENEN",
-        heroDesc: "Dirección visual, rodaje IRL y edición de alto impacto para YouTube, videoclips y marcas.",
-        watch: "Ver Showreel",
-        contact: "Contáctame",
-        featured: "TRABAJOS DESTACADOS",
-        premium: "SERVICIOS PREMIUM",
-        ready: "¿LISTO PARA ELEVAR TUS VIDEOS?",
-        readyDesc: "Hablemos sobre tu próximo proyecto.",
-        location: "Respuesta en 24 horas · Ubicado en España.",
-        send: "Enviar",
-        reel: "Reel Principal",
-    }
-    : {
-        cta: "Let's talk",
-        process: "Process",
-        heroTitle: "VISUALS THAT LOOK PREMIUM AND RETAIN",
-        heroDesc: "Visual direction, IRL shooting and high-impact editing for YouTube, music videos and brands.",
-        watch: "Watch Showreel",
-        contact: "Contact me",
-        featured: "FEATURED WORK",
-        premium: "PREMIUM SERVICES",
-        ready: "READY TO ELEVATE YOUR VIDEOS?",
-        readyDesc: "Let's talk about your next project.",
-        location: "Reply within 24 hours · Based in Spain.",
-        send: "Send",
-        reel: "Main Reel",
-    };
-
-const featuredProjects = [
-    ...projects,
-];
+const featuredProjects = [...projects];
 
 const services = [
-    { title: "Edición YouTube", desc: "Contenido impactante para creadores.", image: "/images/portfolio-youtube-high-retention.png" },
-    { title: "Videoclips", desc: "Producción visual para artistas.", image: "/images/portfolio-music-video-neon-pulse.png" },
-    { title: "Grabación IRL", desc: "Rodajes en locaciones reales.", image: "/images/portfolio-irl-barcelona-night-run.png" },
-    { title: "Shorts / Reels", desc: "Contenido breve y viral.", image: "/images/portfolio-brand-product-teaser.png" },
+    { title: t.home_service_1_title, desc: t.home_service_1_desc, image: "/images/portfolio-youtube-high-retention.png" },
+    { title: t.home_service_2_title, desc: t.home_service_2_desc, image: "/images/portfolio-music-video-neon-pulse.png" },
+    { title: t.home_service_3_title, desc: t.home_service_3_desc, image: "/images/portfolio-irl-barcelona-night-run.png" },
+    { title: t.home_service_4_title, desc: t.home_service_4_desc, image: "/images/portfolio-brand-product-teaser.png" },
 ];
 ---
 
@@ -65,67 +32,41 @@ const services = [
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>POL Producciones</title>
-        <meta name="description" content={labels.heroDesc} />
+        <meta name="description" content={t.home_hero_desc} />
         <meta property="og:title" content="POL Producciones" />
-        <meta property="og:description" content={labels.heroDesc} />
+        <meta property="og:description" content={t.home_hero_desc} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:image" content={`${siteUrl}${heroImage}`} />
     </head>
 
     <body id="top" class="site-bg min-h-screen text-brand-text antialiased">
-        <header class="site-header border-b border-white/20">
-            <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-                <a href={`/${activeLang}/`} class="text-3xl font-black italic tracking-tight">POL <span class="text-brand-accent text-xs not-italic">PRODUCCIONES</span></a>
-
-                <nav class="hidden items-center gap-8 text-sm md:flex">
-                    <a href="#top">{t.nav_home}</a>
-                    <a href="#featured">Trabajos</a>
-                    <a href="#services">{t.nav_services}</a>
-                    <a href="#contact">{t.nav_about}</a>
-                    <a href={`/${activeLang}/proceso/`}>{labels.process}</a>
-                    <a href={`/${activeLang}/sobre-mi/`}>{t.nav_about}</a>
-                    <a href="#services">{labels.process}</a>
-                    <a href={`/${activeLang}/contacto/`}>{t.nav_contact}</a>
-                </nav>
-
-                <div class="flex items-center gap-3 text-sm">
-                    <a class="gold-btn rounded-md px-6 py-2 font-bold text-black" href={`/${activeLang}/contacto/`}>{labels.cta}</a>
-                    <a class={activeLang === "es" ? "text-brand-accent" : "text-white/70"} href="/es/">ES</a>
-                    <span class="text-white/50">|</span>
-                    <a class={activeLang === "en" ? "text-brand-accent" : "text-white/70"} href="/en/">EN</a>
-                </div>
-            </div>
-        </header>
+        <SiteHeader activeLang={activeLang} t={t} />
 
         <main class="mx-auto max-w-6xl px-4 pb-20 pt-28 md:pt-32">
             <section class="scroll-section grid gap-8 py-10 md:grid-cols-[1fr_1.2fr] md:py-14">
                 <div>
-                    <h1 class="text-5xl font-black leading-[0.95] md:text-7xl">{labels.heroTitle}</h1>
-                    <p class="mt-6 max-w-md text-2xl text-white/85">{labels.heroDesc}</p>
+                    <h1 class="text-5xl font-black leading-[0.95] md:text-7xl">{t.home_hero_title}</h1>
+                    <p class="mt-6 max-w-md text-2xl text-white/85">{t.home_hero_desc}</p>
                     <div class="mt-8 flex gap-3">
-                        <a class="gold-btn rounded-md px-8 py-3 text-xl font-bold text-black" href="#">{labels.watch}</a>
-                        <a class="rounded-md border border-white/40 px-8 py-3 text-xl" href={`/${activeLang}/contacto/`}>{labels.contact}</a>
+                        <a class="gold-btn rounded-md px-8 py-3 text-xl font-bold text-black" href="#">{t.home_watch}</a>
+                        <a class="rounded-md border border-white/40 px-8 py-3 text-xl" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
                     </div>
                     <div class="mt-8 flex gap-10 text-4xl font-black">
-                        <p>+120 <span class="text-xl font-medium text-white/70">Proyectos</span></p>
-                        <p>+30M <span class="text-xl font-medium text-white/70">Vistas</span></p>
+                        <p>+120 <span class="text-xl font-medium text-white/70">{t.home_stat_projects}</span></p>
+                        <p>+30M <span class="text-xl font-medium text-white/70">{t.home_stat_views}</span></p>
                     </div>
                 </div>
 
                 <article class="gold-frame relative overflow-hidden rounded-sm p-5">
-                    <img src={heroImage} alt="Reel principal" class="h-full w-full object-cover opacity-75" />
+                    <img src={heroImage} alt={t.home_reel} class="h-full w-full object-cover opacity-75" />
                     <div class="absolute inset-5 bg-gradient-to-t from-black via-black/20 to-black/60"></div>
-                    <h2 class="absolute left-10 top-10 text-5xl font-bold">{labels.reel}</h2>
-                    <div class="absolute bottom-9 left-10 flex gap-3 text-base">
-                        <span class="rounded bg-black/75 px-4 py-2">▾ Case Studies</span>
-                        <span class="rounded bg-black/75 px-4 py-2">▾ Edición · Color · Audio</span>
-                    </div>
+                    <h2 class="absolute left-10 top-10 text-5xl font-bold">{t.home_reel}</h2>
                 </article>
             </section>
 
             <section id="featured" class="scroll-section border-t border-white/25 py-8">
-                <h2 class="mb-5 text-4xl font-black">{labels.featured}</h2>
+                <h2 class="mb-5 text-4xl font-black">{t.home_featured}</h2>
                 <div class="grid gap-4 md:grid-cols-3">
                     {featuredProjects.map((item) => (
                         <article class="project-card overflow-hidden border border-white/20 bg-black/50">
@@ -137,7 +78,7 @@ const services = [
                                 <h3 class="text-4xl font-bold">{item.title}</h3>
                                 <p class="mt-2 text-xl text-white/75">{item.shortDescription}</p>
                                 <a class="gold-btn mt-4 inline-block rounded px-4 py-2 font-bold text-black" href={`/${activeLang}/trabajos/${item.slug}/`}>
-                                    Ver Proyecto
+                                    {t.home_view_project}
                                 </a>
                             </div>
                         </article>
@@ -146,14 +87,14 @@ const services = [
             </section>
 
             <section id="services" class="scroll-section border-t border-white/25 py-8">
-                <h2 class="mb-5 text-4xl font-black">{labels.premium}</h2>
+                <h2 class="mb-5 text-4xl font-black">{t.home_premium}</h2>
                 <div class="grid gap-4 md:grid-cols-4">
                     {services.map((item) => (
                         <article class="project-card overflow-hidden border border-white/20 bg-black/50">
-                            <img src={item.heroImage} alt={item.title} class="h-44 w-full object-cover" />
+                            <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
                             <div class="p-5">
                                 <h3 class="text-4xl font-bold">{item.title}</h3>
-                                <p class="mt-2 text-xl text-white/75">{item.shortDescription}</p>
+                                <p class="mt-2 text-xl text-white/75">{item.desc}</p>
                             </div>
                         </article>
                     ))}
@@ -162,10 +103,10 @@ const services = [
 
             <section id="contact" class="scroll-section grid gap-8 border-t border-white/25 py-12 md:grid-cols-2">
                 <div>
-                    <h2 class="text-5xl font-black">{labels.ready}</h2>
-                    <p class="mt-5 text-3xl text-white/85">{labels.readyDesc}</p>
-                    <p class="mt-4 text-lg text-white/65">{labels.location}</p>
-                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{labels.contact}</a>
+                    <h2 class="text-5xl font-black">{t.home_ready}</h2>
+                    <p class="mt-5 text-3xl text-white/85">{t.home_ready_desc}</p>
+                    <p class="mt-4 text-lg text-white/65">{t.home_location}</p>
+                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
                 </div>
 
                 <form class="border border-white/25 bg-black/40 p-6">
@@ -173,7 +114,7 @@ const services = [
                     <input class="form-line" placeholder={t.form_email} />
                     <textarea class="form-line h-28" placeholder={t.form_message}></textarea>
                     <div class="mt-6 text-right">
-                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{labels.send}</button>
+                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{t.home_send}</button>
                     </div>
                 </form>
             </section>
