@@ -90,7 +90,7 @@ const services = [
                 <h2 class="mb-5 text-4xl font-black">{t.home_premium}</h2>
                 <div class="grid gap-4 md:grid-cols-4">
                     {services.map((item) => (
-                        <article class="project-card overflow-hidden border border-white/20 bg-black/50">
+                        <article class="project-card card-frame overflow-hidden border border-white/20 bg-black/50">
                             <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
                             <div class="p-5">
                                 <h3 class="text-4xl font-bold">{item.title}</h3>
@@ -109,7 +109,7 @@ const services = [
                     <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
                 </div>
 
-                <form class="border border-white/25 bg-black/40 p-6">
+                <form class="card-frame border border-white/25 bg-black/40 p-6">
                     <input class="form-line" placeholder={t.form_name} />
                     <input class="form-line" placeholder={t.form_email} />
                     <textarea class="form-line h-28" placeholder={t.form_message}></textarea>

@@ -31,7 +31,7 @@ const t = await getDict(activeLang);
 
             <section class="scroll-section mt-10 grid gap-5 md:grid-cols-3">
                 {projects.map((project) => (
-                    <article class="project-card overflow-hidden border border-white/20 bg-black/50">
+                    <article class="project-card card-frame overflow-hidden border border-white/20 bg-black/50">
                         <div class="relative h-56">
                             <img src={project.heroImage} alt={project.title} class="h-full w-full object-cover" />
                             <span class="absolute left-4 top-4 rounded bg-black/80 px-3 py-1 text-sm font-semibold">{project.tag}</span>

@@ -25,12 +25,12 @@ const t = await getDict(activeLang);
         <SiteHeader activeLang={activeLang} t={t} />
 
         <main class="mx-auto max-w-4xl px-4 pb-20 pt-28 md:pt-32">
-            <section class="scroll-section rounded-xl border border-white/20 bg-black/45 p-6 md:p-10">
+            <section class="scroll-section card-frame rounded-xl border border-white/20 bg-black/45 p-6 md:p-10">
                 <p class="text-sm tracking-[0.2em] text-brand-accent">{t.contact_subtitle.toUpperCase()}</p>
                 <h1 class="mt-3 text-4xl font-black md:text-6xl">{t.contact_heading}</h1>
                 <p class="mt-5 text-white/80">{t.contact_ready_desc}</p>
 
-                <form class="mt-8 border border-white/25 bg-black/40 p-6">
+                <form class="mt-8 card-frame border border-white/25 bg-black/40 p-6">
                     <input class="form-line" placeholder={t.form_name} />
                     <input class="form-line" placeholder={t.form_email} />
                     <textarea class="form-line h-28" placeholder={t.form_message}></textarea>

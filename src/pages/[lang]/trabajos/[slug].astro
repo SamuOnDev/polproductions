@@ -44,7 +44,7 @@ if (!project) {
                         {project.timeline.map((item) => <span class="detail-pill">{item}</span>)}
                     </div>
 
-                    <div class="project-card mt-6 border border-white/15 bg-black/35 p-4">
+                    <div class="project-card card-frame mt-6 border border-white/15 bg-black/35 p-4">
                         <p class="text-white/75">Tints. 🎥 🎬 🎯 ⚙️ 🧪</p>
                         <p class="mt-4 text-white/80">Tech stack: {project.stack.join(" · ")}</p>
                         <a href="#" class="gold-btn mt-4 inline-flex rounded-md px-6 py-3 text-xl font-bold text-black">▶ {t.project_visit}</a>
@@ -58,7 +58,7 @@ if (!project) {
 
             <section class="scroll-section mt-12 border-t border-white/20 pt-8">
                 <h2 class="text-4xl font-black">{t.project_details}</h2>
-                <div class="project-card mt-5 grid border border-white/15 bg-black/40 lg:grid-cols-[1.9fr_1fr]">
+                <div class="project-card card-frame mt-5 grid border border-white/15 bg-black/40 lg:grid-cols-[1.9fr_1fr]">
                     <article class="p-6 lg:border-r lg:border-white/10">
                         <p class="text-xl text-white/80">{t.project_detail_intro}</p>
                         <ul class="mt-4 list-disc space-y-2 pl-6 text-2xl text-white/90">
@@ -67,7 +67,7 @@ if (!project) {
 
                         <div class="mt-8 grid gap-4 md:grid-cols-3">
                             {project.gallery.map((item) => (
-                                <figure class="overflow-hidden border border-white/15 bg-black/40">
+                                <figure class="card-frame overflow-hidden border border-white/15 bg-black/40">
                                     <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
                                     <figcaption class="p-3 text-2xl font-semibold">{item.title}</figcaption>
                                 </figure>
@@ -91,7 +91,7 @@ if (!project) {
                     <a class="gold-btn mt-6 inline-block rounded-md px-8 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{t.project_contact}</a>
                 </div>
 
-                <form class="project-card border border-white/20 bg-black/30 p-6">
+                <form class="project-card card-frame border border-white/20 bg-black/30 p-6">
                     <input class="form-line" placeholder={t.form_email} />
                     <textarea class="form-line mt-6 h-28" placeholder={t.form_message}></textarea>
                     <div class="mt-8 text-right">
