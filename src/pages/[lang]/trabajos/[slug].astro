@@ -29,16 +29,16 @@ if (!project) {
     <body class="site-bg min-h-screen text-brand-text antialiased">
         <SiteHeader activeLang={activeLang} t={t} />
 
-        <main class="mx-auto max-w-6xl px-4 pb-20 pt-28 md:pt-32">
+        <main class="mx-auto max-w-6xl px-4 pb-20 pt-36 md:pt-32">
             <div class="scroll-section flex flex-wrap items-center gap-3 text-white/70">
                 <a class="back-link-frame" href={`/${activeLang}/trabajos/`}>← {t.project_back}</a>
-                <span class="text-xl text-white/60">/ {t.project_breadcrumb}</span>
+                <span class="text-sm text-white/60 md:text-xl">/ {t.project_breadcrumb}</span>
             </div>
 
             <section class="scroll-section mt-6 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
                 <article>
-                    <h1 class="text-6xl font-black leading-[1.05]">{project.title}</h1>
-                    <p class="mt-5 max-w-md text-2xl text-white/80">{project.description}</p>
+                    <h1 class="text-3xl font-black leading-[1.05] sm:text-4xl md:text-6xl">{project.title}</h1>
+                    <p class="mt-5 max-w-md text-lg text-white/80 md:text-2xl">{project.description}</p>
 
                     <div class="mt-6 flex flex-wrap gap-2">
                         {project.timeline.map((item) => <span class="detail-pill">{item}</span>)}
@@ -47,7 +47,7 @@ if (!project) {
                     <div class="project-card card-frame mt-6 border border-white/15 bg-black/35 p-4">
                         <p class="text-white/75">Tints. 🎥 🎬 🎯 ⚙️ 🧪</p>
                         <p class="mt-4 text-white/80">Tech stack: {project.stack.join(" · ")}</p>
-                        <a href="#" class="gold-btn mt-4 inline-flex rounded-md px-6 py-3 text-xl font-bold text-black">▶ {t.project_visit}</a>
+                        <a href="#" class="gold-btn mt-4 inline-flex rounded-md px-6 py-3 text-base font-bold text-black md:text-xl">▶ {t.project_visit}</a>
                     </div>
                 </article>
 
@@ -57,11 +57,11 @@ if (!project) {
             </section>
 
             <section class="scroll-section mt-12 border-t border-white/20 pt-8">
-                <h2 class="text-4xl font-black">{t.project_details}</h2>
+                <h2 class="text-3xl font-black md:text-4xl">{t.project_details}</h2>
                 <div class="project-card card-frame mt-5 grid border border-white/15 bg-black/40 lg:grid-cols-[1.9fr_1fr]">
                     <article class="p-6 lg:border-r lg:border-white/10">
-                        <p class="text-xl text-white/80">{t.project_detail_intro}</p>
-                        <ul class="mt-4 list-disc space-y-2 pl-6 text-2xl text-white/90">
+                        <p class="text-lg text-white/80 md:text-xl">{t.project_detail_intro}</p>
+                        <ul class="mt-4 list-disc space-y-2 pl-6 text-lg text-white/90 md:text-2xl">
                             {project.objectives.map((objective) => <li>{objective}</li>)}
                         </ul>
 
@@ -69,15 +69,15 @@ if (!project) {
                             {project.gallery.map((item) => (
                                 <figure class="card-frame overflow-hidden border border-white/15 bg-black/40">
                                     <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
-                                    <figcaption class="p-3 text-2xl font-semibold">{item.title}</figcaption>
+                                    <figcaption class="p-3 text-xl font-semibold md:text-2xl">{item.title}</figcaption>
                                 </figure>
                             ))}
                         </div>
                     </article>
 
                     <aside class="p-6">
-                        <h3 class="text-5xl font-black">{t.project_results}</h3>
-                        <ul class="mt-6 space-y-4 text-3xl text-white/90">
+                        <h3 class="text-3xl font-black md:text-5xl">{t.project_results}</h3>
+                        <ul class="mt-6 space-y-4 text-xl text-white/90 md:text-3xl">
                             {project.results.map((result) => <li class="border-b border-white/10 pb-3">✅ {result}</li>)}
                         </ul>
                     </aside>
@@ -86,16 +86,16 @@ if (!project) {
 
             <section id="contact" class="scroll-section mt-12 grid gap-8 lg:grid-cols-2">
                 <div>
-                    <h2 class="text-5xl font-black">{t.project_ready}</h2>
-                    <p class="mt-4 text-2xl text-white/75">{t.project_ready_desc}</p>
-                    <a class="gold-btn mt-6 inline-block rounded-md px-8 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{t.project_contact}</a>
+                    <h2 class="text-3xl font-black md:text-5xl">{t.project_ready}</h2>
+                    <p class="mt-4 text-lg text-white/75 md:text-2xl">{t.project_ready_desc}</p>
+                    <a class="gold-btn mt-6 inline-block rounded-md px-8 py-3 text-lg font-bold text-black md:text-2xl" href={`/${activeLang}/contacto/`}>{t.project_contact}</a>
                 </div>
 
                 <form class="project-card card-frame border border-white/20 bg-black/30 p-6">
                     <input class="form-line" placeholder={t.form_email} />
                     <textarea class="form-line mt-6 h-28" placeholder={t.form_message}></textarea>
                     <div class="mt-8 text-right">
-                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{t.form_submit}</button>
+                        <button class="gold-btn rounded-md px-10 py-3 text-lg font-bold text-black md:text-2xl" type="submit">{t.form_submit}</button>
                     </div>
                 </form>
             </section>

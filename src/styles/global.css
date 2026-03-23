@@ -78,7 +78,7 @@ a {
 .gold-frame {
     border: 8px solid rgb(176 140 60);
     box-shadow: 0 20px 40px rgb(0 0 0 / 0.55);
-    min-height: 430px;
+    min-height: 280px;
 }
 
 
@@ -99,7 +99,7 @@ a {
     color: white;
     margin-top: 1rem;
     padding: 0.5rem 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .form-line:focus {
@@ -140,4 +140,14 @@ a {
     border-color: rgb(var(--brand-accent) / 0.85);
     color: rgb(var(--brand-accent));
     transform: translateY(-1px);
+}
+
+@media (min-width: 768px) {
+    .gold-frame {
+        min-height: 430px;
+    }
+
+    .form-line {
+        font-size: 1.1rem;
+    }
 }
