@@ -66,6 +66,7 @@ a {
 .gold-btn {
     background: rgb(var(--brand-accent));
     box-shadow: 0 8px 22px rgb(245 201 47 / 0.28);
+    text-shadow: none;
     transition: filter 0.2s ease, transform 0.2s ease;
 }
 
