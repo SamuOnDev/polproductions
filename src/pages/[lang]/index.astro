@@ -17,7 +17,7 @@ const siteUrl = Astro.site ? Astro.site.origin : "https://polobkstudios.com";
 const currentUrl = `${siteUrl}/${activeLang}/`;
 const heroImage = "/images/hero-showreel-cover.jpg";
 
-const featuredProjects = [...projects];
+const featuredProjects = projects.slice(0, 3);
 
 const services = [
     { title: t.home_service_1_title, desc: t.home_service_1_desc, image: "/images/portfolio-youtube-high-retention.png" },
