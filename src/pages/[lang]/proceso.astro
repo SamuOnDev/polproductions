@@ -31,11 +31,11 @@ const steps = [
     <body class="site-bg min-h-screen text-brand-text antialiased">
         <SiteHeader activeLang={activeLang} t={t} />
 
-        <main class="mx-auto max-w-6xl px-4 pb-16 pt-28 md:pt-32">
+        <main class="mx-auto max-w-6xl px-4 pb-16 pt-36 md:pt-32">
             <section class="scroll-section card-frame rounded-xl border border-white/20 bg-black/45 p-8 md:p-12">
                 <p class="text-sm uppercase tracking-[0.18em] text-brand-accent">{t.process_kicker}</p>
-                <h1 class="mt-4 max-w-3xl text-4xl font-black md:text-6xl">{t.process_title}</h1>
-                <p class="mt-6 max-w-3xl text-xl text-white/80 md:text-2xl">{t.process_intro}</p>
+                <h1 class="mt-4 max-w-3xl text-3xl font-black md:text-6xl">{t.process_title}</h1>
+                <p class="mt-6 max-w-3xl text-lg text-white/80 md:text-2xl">{t.process_intro}</p>
                 <div class="mt-7 grid gap-4 sm:grid-cols-2">
                     <div class="card-frame rounded-lg border border-white/20 bg-white/[0.03] p-5">
                         <p class="text-sm uppercase tracking-[0.12em] text-white/65">{t.process_duration}</p>
@@ -63,8 +63,8 @@ const steps = [
                     {steps.map((step) => (
                         <article class="card-frame relative rounded-lg border border-white/20 bg-black/40 p-6 pl-16 shadow-[0_14px_30px_rgb(0_0_0_/_0.35)]">
                             <span class="absolute left-4 top-6 flex h-8 w-8 items-center justify-center rounded-full border border-brand-accent/80 bg-black text-xs font-bold text-brand-accent">{step.number}</span>
-                            <h3 class="text-3xl font-black">{step.title}</h3>
-                            <p class="mt-2 text-lg text-white/80">{step.desc}</p>
+                            <h3 class="text-2xl font-black md:text-3xl">{step.title}</h3>
+                            <p class="mt-2 text-base text-white/80 md:text-lg">{step.desc}</p>
                         </article>
                     ))}
                 </div>

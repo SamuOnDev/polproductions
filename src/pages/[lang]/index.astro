@@ -43,30 +43,30 @@ const services = [
     <body id="top" class="site-bg min-h-screen text-brand-text antialiased">
         <SiteHeader activeLang={activeLang} t={t} />
 
-        <main class="mx-auto max-w-6xl px-4 pb-20 pt-28 md:pt-32">
-            <section class="scroll-section grid gap-8 py-10 md:grid-cols-[1fr_1.2fr] md:py-14">
+        <main class="mx-auto max-w-6xl px-4 pb-20 pt-36 md:pt-32">
+            <section class="scroll-section grid gap-8 py-6 md:grid-cols-[1fr_1.2fr] md:py-14">
                 <div>
-                    <h1 class="text-5xl font-black leading-[0.95] md:text-7xl">{t.home_hero_title}</h1>
-                    <p class="mt-6 max-w-md text-2xl text-white/85">{t.home_hero_desc}</p>
-                    <div class="mt-8 flex gap-3">
-                        <a class="gold-btn rounded-md px-8 py-3 text-xl font-bold text-black" href="#">{t.home_watch}</a>
-                        <a class="rounded-md border border-white/40 px-8 py-3 text-xl" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
+                    <h1 class="text-3xl font-black leading-[0.95] sm:text-4xl md:text-7xl">{t.home_hero_title}</h1>
+                    <p class="mt-4 max-w-md text-lg text-white/85 md:mt-6 md:text-2xl">{t.home_hero_desc}</p>
+                    <div class="mt-6 flex flex-wrap gap-3 md:mt-8">
+                        <a class="gold-btn rounded-md px-5 py-3 text-base font-bold text-black sm:px-8 sm:text-xl" href="#">{t.home_watch}</a>
+                        <a class="rounded-md border border-white/40 px-5 py-3 text-base sm:px-8 sm:text-xl" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
                     </div>
-                    <div class="mt-8 flex gap-10 text-4xl font-black">
-                        <p>+120 <span class="text-xl font-medium text-white/70">{t.home_stat_projects}</span></p>
-                        <p>+30M <span class="text-xl font-medium text-white/70">{t.home_stat_views}</span></p>
+                    <div class="mt-7 flex flex-wrap gap-5 text-2xl font-black sm:gap-8 md:mt-8 md:gap-10 md:text-4xl">
+                        <p>+120 <span class="text-base font-medium text-white/70 md:text-xl">{t.home_stat_projects}</span></p>
+                        <p>+30M <span class="text-base font-medium text-white/70 md:text-xl">{t.home_stat_views}</span></p>
                     </div>
                 </div>
 
                 <article class="gold-frame relative overflow-hidden rounded-sm p-5">
                     <img src={heroImage} alt={t.home_reel} class="h-full w-full object-cover opacity-75" />
                     <div class="absolute inset-5 bg-gradient-to-t from-black via-black/20 to-black/60"></div>
-                    <h2 class="absolute left-10 top-10 text-5xl font-bold">{t.home_reel}</h2>
+                    <h2 class="absolute left-6 top-6 text-3xl font-bold md:left-10 md:top-10 md:text-5xl">{t.home_reel}</h2>
                 </article>
             </section>
 
             <section id="featured" class="scroll-section border-t border-white/25 py-8">
-                <h2 class="mb-5 text-4xl font-black">{t.home_featured}</h2>
+                <h2 class="mb-5 text-3xl font-black md:text-4xl">{t.home_featured}</h2>
                 <div class="grid gap-4 md:grid-cols-3">
                     {featuredProjects.map((item) => (
                         <article class="project-card flex h-full flex-col overflow-hidden border border-white/20 bg-black/50">
@@ -75,8 +75,8 @@ const services = [
                                 <span class="absolute left-4 top-4 rounded bg-black/80 px-3 py-1 text-sm font-semibold">{item.tag}</span>
                             </div>
                             <div class="flex flex-1 flex-col p-5">
-                                <h3 class="text-3xl font-bold leading-tight">{item.title}</h3>
-                                <p class="mt-2 flex-1 text-xl text-white/75">{item.shortDescription}</p>
+                                <h3 class="text-2xl font-bold leading-tight md:text-3xl">{item.title}</h3>
+                                <p class="mt-2 flex-1 text-lg text-white/75 md:text-xl">{item.shortDescription}</p>
                                 <a class="gold-btn mt-4 inline-block self-start rounded px-4 py-2 font-bold text-black" href={`/${activeLang}/trabajos/${item.slug}/`}>
                                     {t.home_view_project}
                                 </a>
@@ -87,14 +87,14 @@ const services = [
             </section>
 
             <section id="services" class="scroll-section border-t border-white/25 py-8">
-                <h2 class="mb-5 text-4xl font-black">{t.home_premium}</h2>
+                <h2 class="mb-5 text-3xl font-black md:text-4xl">{t.home_premium}</h2>
                 <div class="grid gap-4 md:grid-cols-4">
                     {services.map((item) => (
                         <article class="project-card card-frame overflow-hidden border border-white/20 bg-black/50">
                             <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
                             <div class="p-5">
-                                <h3 class="text-4xl font-bold">{item.title}</h3>
-                                <p class="mt-2 text-xl text-white/75">{item.desc}</p>
+                                <h3 class="text-2xl font-bold md:text-4xl">{item.title}</h3>
+                                <p class="mt-2 text-lg text-white/75 md:text-xl">{item.desc}</p>
                             </div>
                         </article>
                     ))}
@@ -103,10 +103,10 @@ const services = [
 
             <section id="contact" class="scroll-section grid gap-8 border-t border-white/25 py-12 md:grid-cols-2">
                 <div>
-                    <h2 class="text-5xl font-black">{t.home_ready}</h2>
-                    <p class="mt-5 text-3xl text-white/85">{t.home_ready_desc}</p>
+                    <h2 class="text-3xl font-black md:text-5xl">{t.home_ready}</h2>
+                    <p class="mt-4 text-xl text-white/85 md:mt-5 md:text-3xl">{t.home_ready_desc}</p>
                     <p class="mt-4 text-lg text-white/65">{t.home_location}</p>
-                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-2xl font-bold text-black" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
+                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-lg font-bold text-black md:text-2xl" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
                 </div>
 
                 <form class="card-frame border border-white/25 bg-black/40 p-6">
@@ -114,7 +114,7 @@ const services = [
                     <input class="form-line" placeholder={t.form_email} />
                     <textarea class="form-line h-28" placeholder={t.form_message}></textarea>
                     <div class="mt-6 text-right">
-                        <button class="gold-btn rounded-md px-10 py-3 text-2xl font-bold text-black" type="submit">{t.home_send}</button>
+                        <button class="gold-btn rounded-md px-10 py-3 text-lg font-bold text-black md:text-2xl" type="submit">{t.home_send}</button>
                     </div>
                 </form>
             </section>
