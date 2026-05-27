@@ -1,8 +1,8 @@
 ---
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
-import { projects } from "../../data/projects";
-import SiteHeader from "../../components/SiteHeader.astro";
+import { workItems } from "../../data/featuredVideos";
+import { verticalItems } from "../../data/featuredVideos";
 import "../../styles/global.css";
 
 export async function getStaticPaths() {
@@ -13,128 +13,501 @@ const { lang } = Astro.params as { lang?: ActiveLang };
 const activeLang = lang ?? DEFAULT_LANG;
 const t = await getDict(activeLang);
 
-const siteUrl = Astro.site ? Astro.site.origin : "https://polobkstudios.com";
+const siteUrl = Astro.site ? Astro.site.origin : "https://polsanchezbaena.com";
 const currentUrl = `${siteUrl}/${activeLang}/`;
-const heroImage = "/images/hero-showreel-cover.jpg";
-
-const featuredProjects = projects.slice(0, 3);
+const heroImageSrc = "/images/hero-showreel-cover.jpg";
 
 const services = [
-    { title: t.home_service_1_title, desc: t.home_service_1_desc, image: "/images/portfolio-youtube-high-retention.png" },
-    { title: t.home_service_2_title, desc: t.home_service_2_desc, image: "/images/portfolio-music-video-neon-pulse.png" },
-    { title: t.home_service_3_title, desc: t.home_service_3_desc, image: "/images/portfolio-irl-barcelona-night-run.png" },
-    { title: t.home_service_4_title, desc: t.home_service_4_desc, image: "/images/portfolio-brand-product-teaser.png" },
+    { num: "01", titleKey: "service_1_title", descKey: "service_1_desc", priceKey: "service_1_price", fromKey: "service_price_from" },
+    { num: "02", titleKey: "service_2_title", descKey: "service_2_desc", priceKey: "service_2_price", fromKey: "service_price_from" },
+    { num: "03", titleKey: "service_3_title", descKey: "service_3_desc", priceKey: "service_3_price", fromKey: "service_price_from" },
+    { num: "04", titleKey: "service_4_title", descKey: "service_4_desc", priceKey: "service_4_price", fromKey: "service_price_from" },
+    { num: "05", titleKey: "service_5_title", descKey: "service_5_desc", priceKey: "service_5_price", fromKey: "service_price_from" },
+    { num: "06", titleKey: "service_6_title", descKey: "service_6_desc", priceKey: "service_6_price", fromKey: "service_price_budget" },
 ];
+
+const processSteps = [
+    { num: "01", titleKey: "process_step_1_title", descKey: "process_step_1_desc", timeKey: "process_step_1_time" },
+    { num: "02", titleKey: "process_step_2_title", descKey: "process_step_2_desc", timeKey: "process_step_2_time" },
+    { num: "03", titleKey: "process_step_3_title", descKey: "process_step_3_desc", timeKey: "process_step_3_time" },
+    { num: "04", titleKey: "process_step_4_title", descKey: "process_step_4_desc", timeKey: "process_step_4_time" },
+];
+
+const logoNames = [
+    "Lume <i>Records</i>", "Northbeat", "Atlas <i>Studio</i>", "Vertigo",
+    "Casa Mar", "Ediciones <i>Norte</i>", "Pulse Mag", "Halcón <i>Audio</i>",
+];
+
+const projectOptions = t.form_project_options as unknown as string[];
+const budgetOptions = t.form_budget_options as unknown as string[];
 ---
 
 <html lang={activeLang}>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>POL Producciones</title>
-        <meta name="description" content={t.home_hero_desc} />
-        <meta property="og:title" content="POL Producciones" />
-        <meta property="og:description" content={t.home_hero_desc} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={currentUrl} />
-        <meta property="og:image" content={`${siteUrl}${heroImage}`} />
-    </head>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pol Sánchez — {activeLang === "es" ? "Director y editor de vídeo" : "Video director & editor"}</title>
+    <meta name="description" content={t.hero_role_desc.replace(/<[^>]*>/g, "")} />
+    <meta property="og:title" content="Pol Sánchez Baena" />
+    <meta property="og:description" content={t.hero_role_desc.replace(/<[^>]*>/g, "")} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:image" content={`${siteUrl}${heroImageSrc}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href={currentUrl} />
+    <link rel="alternate" hreflang="es" href={`${siteUrl}/es/`} />
+    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script is:inline>
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">{t.skip_to_content}</a>
 
-    <body id="top" class="site-bg min-h-screen text-brand-text antialiased">
-        <SiteHeader activeLang={activeLang} t={t} />
+    <!-- NAV -->
+    <header class="nav">
+        <div class="nav-inner">
+            <a class="brand" href="#top">
+                <span class="dot"></span>
+                <b>Pol</b>
+                <span class="sub">/ Sánchez Baena</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#work">{t.nav_work}</a>
+                <a href="#vertical">{t.nav_vertical}</a>
+                <a href="#services">{t.nav_services}</a>
+                <a href="#process">{t.nav_process}</a>
+                <a href="#about">{t.nav_about}</a>
+                <a href="#contact">{t.nav_contact}</a>
+            </nav>
+            <div class="nav-cta">
+                <div class="availability"><span class="live"></span> {t.nav_availability}</div>
 
-        <main class="mx-auto max-w-6xl px-4 pb-20 pt-36 md:pt-32">
-            <section class="scroll-section grid gap-8 py-6 md:grid-cols-[1fr_1.2fr] md:py-14">
-                <div>
-                    <h1 class="text-3xl font-black leading-[0.95] sm:text-4xl md:text-7xl">{t.home_hero_title}</h1>
-                    <p class="mt-4 max-w-md text-lg text-white/85 md:mt-6 md:text-2xl">{t.home_hero_desc}</p>
-                    <div class="mt-6 flex flex-wrap gap-3 md:mt-8">
-                        <a class="gold-btn rounded-md px-5 py-3 text-base font-bold text-black sm:px-8 sm:text-xl" href="#">{t.home_watch}</a>
-                        <a class="rounded-md border border-white/40 px-5 py-3 text-base sm:px-8 sm:text-xl" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
-                    </div>
-                    <div class="mt-7 flex flex-wrap gap-5 text-2xl font-black sm:gap-8 md:mt-8 md:gap-10 md:text-4xl">
-                        <p>+120 <span class="text-base font-medium text-white/70 md:text-xl">{t.home_stat_projects}</span></p>
-                        <p>+30M <span class="text-base font-medium text-white/70 md:text-xl">{t.home_stat_views}</span></p>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+
+                <div class="lang-switch">
+                    <a class={activeLang === "es" ? "active" : ""} href="/es/" aria-current={activeLang === "es" ? "page" : undefined}>ES</a>
+                    <a class={activeLang === "en" ? "active" : ""} href="/en/" aria-current={activeLang === "en" ? "page" : undefined}>EN</a>
+                </div>
+
+                <a class="btn solid" href="#contact">{t.nav_cta} <span class="arr">&rarr;</span></a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- HERO -->
+        <section class="hero" id="top">
+            <div class="container">
+                <div class="hero-top reveal">
+                    <h1>
+                        {t.hero_title_1}<br />
+                        {t.hero_title_2} <b>{t.hero_title_3}</b><br />
+                        {t.hero_title_4} <span class="accent">{t.hero_title_accent}</span>.
+                    </h1>
+                    <div class="hero-meta">
+                        <span class="mono">{t.hero_role_label}</span>
+                        <p class="role" set:html={t.hero_role_desc} />
+                        <div class="hero-actions">
+                            <a class="btn solid" href="#work">{t.hero_cta_work} <span class="arr">&rarr;</span></a>
+                            <a class="btn ghost" href="#contact">{t.hero_cta_contact}</a>
+                        </div>
                     </div>
                 </div>
 
-                <article class="gold-frame relative overflow-hidden rounded-sm p-5">
-                    <img src={heroImage} alt={t.home_reel} class="h-full w-full object-cover opacity-75" />
-                    <div class="absolute inset-5 bg-gradient-to-t from-black via-black/20 to-black/60"></div>
-                    <h2 class="absolute left-6 top-6 text-3xl font-bold md:left-10 md:top-10 md:text-5xl">{t.home_reel}</h2>
-                </article>
-            </section>
+                <div class="showreel reveal" style="transition-delay:.15s">
+                    <span class="sr-counter"><span class="live-dot"></span> {t.hero_showreel_label}</span>
+                    <a class="sr-play" href="#">
+                        <span class="ico"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                        {t.hero_showreel_play}
+                    </a>
+                    <img src={heroImageSrc} alt="Showreel cover" />
+                    <div class="sr-meta">
+                        <div class="title">{t.hero_showreel_title} <small>{t.hero_showreel_specs}</small></div>
+                        <div class="info"><b>{t.hero_showreel_pieces}</b><br />{t.hero_showreel_roles}<br />{t.hero_showreel_location}</div>
+                    </div>
+                </div>
 
-            <section id="featured" class="scroll-section border-t border-white/25 py-8">
-                <h2 class="mb-5 text-3xl font-black md:text-4xl">{t.home_featured}</h2>
-                <div class="grid gap-4 md:grid-cols-3">
-                    {featuredProjects.map((item) => (
-                        <article class="project-card flex h-full flex-col overflow-hidden border border-white/20 bg-black/50">
-                            <div class="relative h-56">
-                                <img src={item.heroImage} alt={item.title} class="h-full w-full object-cover" />
-                                <span class="absolute left-4 top-4 rounded bg-black/80 px-3 py-1 text-sm font-semibold">{item.tag}</span>
+                <div class="hero-stats reveal" style="transition-delay:.3s">
+                    <div class="stat"><div class="n"><b>{t.stat_1_value}</b><sup>{t.stat_1_unit}</sup></div><div class="l">{t.stat_1_label}</div></div>
+                    <div class="stat"><div class="n"><b>{t.stat_2_value}</b><sup>{t.stat_2_unit}</sup></div><div class="l">{t.stat_2_label}</div></div>
+                    <div class="stat"><div class="n"><b>{t.stat_3_value}</b><sup>{t.stat_3_unit}</sup></div><div class="l">{t.stat_3_label}</div></div>
+                    <div class="stat"><div class="n"><b>{t.stat_4_value}</b><sup>{t.stat_4_unit}</sup></div><div class="l">{t.stat_4_label}</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOGOS STRIP -->
+        <div class="logos">
+            <div class="logos-inner">
+                <span class="logos-label">{t.logos_label}</span>
+                <div class="logos-track">
+                    {logoNames.map((name) => <span set:html={name} />)}
+                    {logoNames.map((name) => <span set:html={name} />)}
+                </div>
+            </div>
+        </div>
+
+        <!-- WORK -->
+        <section id="work">
+            <div class="container">
+                <div class="s-head reveal">
+                    <span class="num">{t.work_num}</span>
+                    <h2 set:html={t.work_title} />
+                    <span class="aside"><b>{t.work_aside_title}</b>{t.work_aside_desc}</span>
+                </div>
+
+                <div class="work-filters reveal">
+                    <button class="chip active" data-filter="all">{t.work_filter_all} <span class="count">14</span></button>
+                    <button class="chip" data-filter="clips">{t.work_filter_clips} <span class="count">06</span></button>
+                    <button class="chip" data-filter="ads">{t.work_filter_ads} <span class="count">04</span></button>
+                    <button class="chip" data-filter="youtube">{t.work_filter_youtube} <span class="count">03</span></button>
+                    <button class="chip" data-filter="doc">{t.work_filter_doc} <span class="count">01</span></button>
+                </div>
+
+                <div class="work-grid">
+                    {workItems.map((item, i) => (
+                        <a class={`case ${item.size} reveal`} style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined}>
+                            <div class="ph"><img src={item.image} alt={item.title} loading={i < 2 ? "eager" : "lazy"} /></div>
+                            <span class="num-pin">{String(i + 1).padStart(2, "0")} / {String(workItems.length).padStart(2, "0")}</span>
+                            <span class="play-pin"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                            <div class="meta">
+                                <h3>{item.title} <small>{item.subtitle}</small></h3>
+                                <span class="tag">{item.tag}</span>
                             </div>
-                            <div class="flex flex-1 flex-col p-5">
-                                <h3 class="text-2xl font-bold leading-tight md:text-3xl">{item.title}</h3>
-                                <p class="mt-2 flex-1 text-lg text-white/75 md:text-xl">{item.shortDescription}</p>
-                                <a class="gold-btn mt-4 inline-block self-start rounded px-4 py-2 font-bold text-black" href={`/${activeLang}/trabajos/${item.slug}/`}>
-                                    {t.home_view_project}
-                                </a>
+                        </a>
+                    ))}
+                </div>
+
+                <div class="work-more reveal">
+                    <a class="btn ghost" href="#">{t.work_more} <span class="arr">&rarr;</span></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- VERTICAL -->
+        <section class="vertical-section" id="vertical">
+            <div class="container">
+                <div class="s-head reveal">
+                    <span class="num">{t.vertical_num}</span>
+                    <h2 set:html={t.vertical_title} />
+                    <span class="aside"><b>{t.vertical_aside_title}</b>{t.vertical_aside_desc}</span>
+                </div>
+
+                <div class="v-grid">
+                    {verticalItems.map((item, i) => (
+                        <article class="phone reveal" style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined}>
+                            <div class="phone-shell">
+                                <div class="phone-notch"></div>
+                                <div class="phone-screen">
+                                    <img src={item.image} alt={item.title} loading="lazy" />
+                                    <div class="phone-cap">
+                                        <h4>{item.title}</h4>
+                                        <span>{item.subtitle}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="phone-info">
+                                <b>{item.views}</b>
+                                <span>{item.platform}</span>
                             </div>
                         </article>
                     ))}
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="services" class="scroll-section border-t border-white/25 py-8">
-                <h2 class="mb-5 text-3xl font-black md:text-4xl">{t.home_premium}</h2>
-                <div class="grid gap-4 md:grid-cols-4">
-                    {services.map((item) => (
-                        <article class="project-card card-frame overflow-hidden border border-white/20 bg-black/50">
-                            <img src={item.image} alt={item.title} class="h-44 w-full object-cover" />
-                            <div class="p-5">
-                                <h3 class="text-2xl font-bold md:text-4xl">{item.title}</h3>
-                                <p class="mt-2 text-lg text-white/75 md:text-xl">{item.desc}</p>
+        <!-- SERVICES -->
+        <section id="services">
+            <div class="container">
+                <div class="s-head reveal">
+                    <span class="num">{t.services_num}</span>
+                    <h2 set:html={t.services_title} />
+                    <span class="aside"><b>{t.services_aside_title}</b>{t.services_aside_desc}</span>
+                </div>
+
+                <div class="services">
+                    {services.map((srv, i) => (
+                        <a class="srv reveal" style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined}>
+                            <div class="ico">{srv.num}</div>
+                            <h3>{t[srv.titleKey]}</h3>
+                            <p>{t[srv.descKey]}</p>
+                            <div class="foot">
+                                <div class="price">
+                                    <small>{t[srv.fromKey]}</small>
+                                    <b>{t[srv.priceKey]}</b>
+                                </div>
+                                <span class="arr">&rarr;</span>
                             </div>
-                        </article>
+                        </a>
                     ))}
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="contact" class="scroll-section grid gap-8 border-t border-white/25 py-12 md:grid-cols-2">
-                <div>
-                    <h2 class="text-3xl font-black md:text-5xl">{t.home_ready}</h2>
-                    <p class="mt-4 text-xl text-white/85 md:mt-5 md:text-3xl">{t.home_ready_desc}</p>
-                    <p class="mt-4 text-lg text-white/65">{t.home_location}</p>
-                    <a class="gold-btn mt-6 inline-block rounded-md px-7 py-3 text-lg font-bold text-black md:text-2xl" href={`/${activeLang}/contacto/`}>{t.home_contact}</a>
-                </div>
-
-                <form class="card-frame border border-white/25 bg-black/40 p-6">
-                    <input class="form-line" placeholder={t.form_name} />
-                    <input class="form-line" placeholder={t.form_email} />
-                    <textarea class="form-line h-28" placeholder={t.form_message}></textarea>
-                    <div class="mt-6 text-right">
-                        <button class="gold-btn rounded-md px-10 py-3 text-lg font-bold text-black md:text-2xl" type="submit">{t.home_send}</button>
+        <!-- PROCESS -->
+        <section id="process">
+            <div class="container">
+                <div class="process-wrap">
+                    <div class="process-aside reveal">
+                        <span class="num mono">{t.process_num}</span>
+                        <h3 style="margin-top:14px" set:html={t.process_title} />
+                        <p>{t.process_desc}</p>
+                        <span class="badge">{t.process_badge}</span>
                     </div>
-                </form>
-            </section>
-        </main>
+                    <div class="steps">
+                        {processSteps.map((step, i) => (
+                            <div class="step reveal" style={i > 0 ? `transition-delay:${i * 0.06}s` : undefined}>
+                                <span class="n">{step.num}</span>
+                                <div>
+                                    <h4>{t[step.titleKey]}</h4>
+                                    <p>{t[step.descKey]}</p>
+                                </div>
+                                <span class="when">{t[step.timeKey]}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <script is:inline>
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add("is-visible");
-                        }
-                    });
-                },
-                { threshold: 0.2, rootMargin: "0px 0px -60px 0px" },
-            );
+        <!-- ABOUT -->
+        <section id="about">
+            <div class="container">
+                <div class="about">
+                    <div class="about-portrait reveal">
+                        <img src={heroImageSrc} alt={t.about_portrait_alt} />
+                        <span class="name-tag"><b>{t.about_portrait_tag}</b> &middot; {t.about_portrait_role}</span>
+                    </div>
+                    <div class="about-copy reveal" style="transition-delay:.1s">
+                        <span class="mono" style="display:block;margin-bottom:18px">{t.about_num}</span>
+                        <h2 set:html={t.about_title} />
+                        <p class="lead">{t.about_lead}</p>
+                        <p>{t.about_p1}</p>
+                        <p>{t.about_p2}</p>
 
-            document.querySelectorAll(".scroll-section").forEach((section) => {
-                observer.observe(section);
+                        <div class="facts">
+                            <div class="fact"><span>{t.about_fact_1_label}</span><b>{t.about_fact_1_value}</b></div>
+                            <div class="fact"><span>{t.about_fact_2_label}</span><b>{t.about_fact_2_value}</b></div>
+                            <div class="fact"><span>{t.about_fact_3_label}</span><b>{t.about_fact_3_value}</b></div>
+                            <div class="fact"><span>{t.about_fact_4_label}</span><b>{t.about_fact_4_value}</b></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact" style="border-bottom:0">
+            <div class="container">
+                <div class="contact">
+                    <div class="contact-intro reveal">
+                        <span class="mono" style="display:block;margin-bottom:18px">{t.contact_num}</span>
+                        <h2 set:html={t.contact_title} />
+                        <p>{t.contact_desc}</p>
+
+                        <div class="contact-channels">
+                            <a class="channel" href={`mailto:${t.contact_email}`}>
+                                <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg></span>
+                                <div class="body"><span>{t.contact_email_label}</span><b>{t.contact_email}</b></div>
+                                <span class="arr">&rarr;</span>
+                            </a>
+                            <a class="channel" href="tel:+34600000000">
+                                <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+                                <div class="body"><span>{t.contact_phone_label}</span><b>{t.contact_phone}</b></div>
+                                <span class="arr">&rarr;</span>
+                            </a>
+                            <a class="channel" href="#">
+                                <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></span>
+                                <div class="body"><span>{t.contact_social_label}</span><b>{t.contact_social}</b></div>
+                                <span class="arr">&rarr;</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <form class="form-card reveal" style="transition-delay:.1s" id="contact-form">
+                        <h3>{t.contact_form_title}</h3>
+                        <p class="lead-line">{t.contact_form_lead}</p>
+                        <div class="form-grid">
+                            <div class="row2">
+                                <div class="field">
+                                    <label for="form-name">{t.form_name}</label>
+                                    <input id="form-name" name="name" required placeholder={t.form_name_placeholder} autocomplete="name" />
+                                </div>
+                                <div class="field">
+                                    <label for="form-email">{t.form_email}</label>
+                                    <input id="form-email" name="email" type="email" required placeholder={t.form_email_placeholder} autocomplete="email" />
+                                </div>
+                            </div>
+                            <div class="row2">
+                                <div class="field">
+                                    <label for="form-project">{t.form_project_type}</label>
+                                    <select id="form-project" name="project">
+                                        {projectOptions.map((opt: string) => <option>{opt}</option>)}
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="form-budget">{t.form_budget}</label>
+                                    <select id="form-budget" name="budget">
+                                        {budgetOptions.map((opt: string) => <option>{opt}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="form-message">{t.form_message}</label>
+                                <textarea id="form-message" name="message" required placeholder={t.form_message_placeholder}></textarea>
+                            </div>
+                            <div class="form-submit">
+                                <span class="note" id="form-note">{t.form_note}</span>
+                                <button class="btn solid" type="submit">{t.form_submit} <span class="arr">&rarr;</span></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="foot-top">
+                <div class="foot-brand">
+                    <h3>Pol<br /><b>Sánchez Baena</b></h3>
+                    <p>{t.footer_tagline}</p>
+                </div>
+                <div class="foot-col">
+                    <h5>{t.footer_nav_title}</h5>
+                    <a href="#work">{t.nav_work}</a>
+                    <a href="#vertical">{t.nav_vertical}</a>
+                    <a href="#services">{t.nav_services}</a>
+                    <a href="#process">{t.nav_process}</a>
+                    <a href="#about">{t.nav_about}</a>
+                    <a href="#contact">{t.nav_contact}</a>
+                </div>
+                <div class="foot-col">
+                    <h5>{t.footer_contact_title}</h5>
+                    <a href={`mailto:${t.contact_email}`}>{t.contact_email}</a>
+                    <a href="tel:+34600000000">{t.contact_phone}</a>
+                    <a href="#">{t.footer_location}</a>
+                </div>
+                <div class="foot-col">
+                    <h5>{t.footer_social_title}</h5>
+                    <a href="#">Instagram</a>
+                    <a href="#">YouTube</a>
+                    <a href="#">Vimeo</a>
+                    <a href="#">LinkedIn</a>
+                </div>
+            </div>
+            <div class="foot-bottom">
+                <span><b>{t.footer_copyright}</b></span>
+                <span class="mono">{t.footer_version}</span>
+            </div>
+        </div>
+    </footer>
+
+    <script is:inline>
+        // JS flag for reveal animations
+        document.documentElement.classList.add('js');
+
+        // Scroll reveal
+        var revealAll = function() {
+            document.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('in'); });
+        };
+
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e) {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('in');
+                        io.unobserve(e.target);
+                    }
+                });
+            }, { rootMargin: '0px 0px -5% 0px', threshold: 0.05 });
+
+            document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+            requestAnimationFrame(function() {
+                document.querySelectorAll('.reveal').forEach(function(el) {
+                    var r = el.getBoundingClientRect();
+                    if (r.top < window.innerHeight * 0.95) {
+                        el.classList.add('in');
+                        io.unobserve(el);
+                    }
+                });
             });
-        </script>
-    </body>
+
+            setTimeout(function() {
+                if (document.querySelectorAll('.reveal.in').length === 0) revealAll();
+            }, 1200);
+        } else {
+            revealAll();
+        }
+
+        // Chip filter
+        document.querySelectorAll('.work-filters .chip').forEach(function(c) {
+            c.addEventListener('click', function() {
+                document.querySelectorAll('.work-filters .chip').forEach(function(o) { o.classList.remove('active'); });
+                c.classList.add('active');
+            });
+        });
+
+        // Theme toggle
+        (function() {
+            var toggle = document.getElementById('theme-toggle');
+            var sun = toggle.querySelector('.sun-icon');
+            var moon = toggle.querySelector('.moon-icon');
+
+            function updateIcons() {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                sun.style.display = isDark ? 'none' : 'block';
+                moon.style.display = isDark ? 'block' : 'none';
+            }
+
+            updateIcons();
+
+            toggle.addEventListener('click', function() {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+                updateIcons();
+            });
+        })();
+
+        // Form submit (UI only)
+        (function() {
+            var form = document.getElementById('contact-form');
+            var note = document.getElementById('form-note');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    note.textContent = note.dataset.success || 'Message received.';
+                });
+            }
+        })();
+    </script>
+    <script is:inline define:vars={{ formSuccess: t.form_success }}>
+        document.getElementById('form-note').dataset.success = formSuccess;
+    </script>
+</body>
 </html>
