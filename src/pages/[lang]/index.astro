@@ -182,10 +182,12 @@ const budgetOptions = t.form_budget_options as unknown as string[];
 
                 <div class="work-grid">
                     {workItems.map((item, i) => (
-                        <a class={`case ${item.size} reveal`} style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined}>
-                            <div class="ph"><img src={item.image} alt={item.title} loading={i < 2 ? "eager" : "lazy"} /></div>
+                        <a class={`case ${item.size} reveal`} style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined} data-yt={item.youtubeId || undefined}>
+                            <div class="ph">
+                                <img src={item.image} alt={item.title} loading={i < 2 ? "eager" : "lazy"} />
+                            </div>
                             <span class="num-pin">{String(i + 1).padStart(2, "0")} / {String(workItems.length).padStart(2, "0")}</span>
-                            <span class="play-pin"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                            {item.youtubeId && <span class="play-pin"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>}
                             <div class="meta">
                                 <h3>{item.title} <small>{item.subtitle}</small></h3>
                                 <span class="tag">{item.tag}</span>
@@ -211,7 +213,7 @@ const budgetOptions = t.form_budget_options as unknown as string[];
 
                 <div class="v-grid">
                     {verticalItems.map((item, i) => (
-                        <article class="phone reveal" style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined}>
+                        <article class="phone reveal" style={i > 0 ? `transition-delay:${i * 0.08}s` : undefined} data-yt-vertical={item.youtubeId || undefined}>
                             <div class="phone-shell">
                                 <div class="phone-notch"></div>
                                 <div class="phone-screen">
@@ -504,6 +506,64 @@ const budgetOptions = t.form_budget_options as unknown as string[];
                     note.textContent = note.dataset.success || 'Message received.';
                 });
             }
+        })();
+
+        // Hover-to-play: horizontal work cards
+        (function() {
+            var ytParams = 'autoplay=1&mute=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&disablekb=1&fs=0&playsinline=1&loop=1';
+
+            document.querySelectorAll('[data-yt]').forEach(function(card) {
+                var id = card.getAttribute('data-yt');
+                if (!id) return;
+                var ph = card.querySelector('.ph');
+                var iframe = null;
+
+                card.addEventListener('mouseenter', function() {
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.src = 'https://www.youtube.com/embed/' + id + '?' + ytParams + '&playlist=' + id;
+                        iframe.allow = 'autoplay; encrypted-media';
+                        iframe.setAttribute('loading', 'lazy');
+                        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:1;pointer-events:none;';
+                    }
+                    ph.appendChild(iframe);
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    if (iframe && iframe.parentNode) {
+                        iframe.parentNode.removeChild(iframe);
+                        iframe.src = '';
+                        iframe = null;
+                    }
+                });
+            });
+
+            // Hover-to-play: vertical phone cards
+            document.querySelectorAll('[data-yt-vertical]').forEach(function(card) {
+                var id = card.getAttribute('data-yt-vertical');
+                if (!id) return;
+                var screen = card.querySelector('.phone-screen');
+                var iframe = null;
+
+                card.addEventListener('mouseenter', function() {
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.src = 'https://www.youtube.com/embed/' + id + '?' + ytParams + '&playlist=' + id;
+                        iframe.allow = 'autoplay; encrypted-media';
+                        iframe.setAttribute('loading', 'lazy');
+                        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2;pointer-events:none;object-fit:cover;';
+                    }
+                    screen.appendChild(iframe);
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    if (iframe && iframe.parentNode) {
+                        iframe.parentNode.removeChild(iframe);
+                        iframe.src = '';
+                        iframe = null;
+                    }
+                });
+            });
         })();
     </script>
     <script is:inline define:vars={{ formSuccess: t.form_success }}>

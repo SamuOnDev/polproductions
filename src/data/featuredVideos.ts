@@ -6,6 +6,7 @@ export type WorkItem = {
     image: string;
     size: "lg" | "md" | "eq" | "half";
     category: "all" | "clips" | "ads" | "youtube" | "doc";
+    youtubeId?: string;
 };
 
 export const workItems: WorkItem[] = [
@@ -17,6 +18,7 @@ export const workItems: WorkItem[] = [
         image: "/images/portfolio-irl.png",
         size: "lg",
         category: "doc",
+        youtubeId: "TbHDX21Gc7Q",
     },
     {
         title: "Lume — Vertigo",
@@ -26,6 +28,7 @@ export const workItems: WorkItem[] = [
         image: "/images/portfolio-music.png",
         size: "md",
         category: "clips",
+        youtubeId: "35FYWabsIvI",
     },
     {
         title: "Northbeat S/S",
@@ -35,6 +38,7 @@ export const workItems: WorkItem[] = [
         image: "/images/portfolio-brand.png",
         size: "eq",
         category: "ads",
+        youtubeId: "zBCcWVxjRfs",
     },
     {
         title: "Studio Vlog — Ep. 04",
@@ -80,6 +84,7 @@ export type VerticalItem = {
     image: string;
     views: string;
     platform: string;
+    youtubeId?: string;
 };
 
 export const verticalItems: VerticalItem[] = [
@@ -89,6 +94,7 @@ export const verticalItems: VerticalItem[] = [
         image: "/images/portfolio-music.png",
         views: "4.2M views",
         platform: "Instagram Reels",
+        youtubeId: "Hcu5FxBsky4",
     },
     {
         title: "BCN Night Run",
@@ -96,6 +102,7 @@ export const verticalItems: VerticalItem[] = [
         image: "/images/portfolio-irl.png",
         views: "1.1M views",
         platform: "TikTok",
+        youtubeId: "y-ob0lKlvsI",
     },
     {
         title: "Northbeat — Hook A",
@@ -103,6 +110,7 @@ export const verticalItems: VerticalItem[] = [
         image: "/images/portfolio-brand.png",
         views: "620k views",
         platform: "Instagram Reels",
+        youtubeId: "5z7osOXq8Fk",
     },
     {
         title: "Studio — Highlight",
@@ -110,6 +118,7 @@ export const verticalItems: VerticalItem[] = [
         image: "/images/portfolio-youtube.png",
         views: "2.0M views",
         platform: "YouTube Shorts",
+        youtubeId: "-RsuoGKHosw",
     },
     {
         title: "Madrid After Hours",
