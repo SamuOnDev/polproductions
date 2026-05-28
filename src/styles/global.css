@@ -1426,6 +1426,19 @@ footer {
     color: var(--ink);
     font-weight: 500;
 }
+.foot-bottom .powered-by {
+    color: var(--muted);
+    opacity: 0.7;
+}
+.foot-bottom .powered-by a {
+    color: inherit;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.foot-bottom .powered-by a:hover {
+    color: var(--ink);
+    border-bottom-color: currentColor;
+}
 
 /* ─── ADMIN FAB ─────────────────────────────────────── */
 .admin-fab {
