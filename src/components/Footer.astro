@@ -1,0 +1,49 @@
+---
+import type { ActiveLang, LocaleTexts } from "../i18n";
+
+interface Props {
+    activeLang: ActiveLang;
+    t: LocaleTexts;
+}
+
+const { activeLang, t } = Astro.props;
+const base = `/${activeLang}`;
+const phoneHref = "tel:" + String(t.contact_phone || "").replace(/\s+/g, "");
+const emailHref = "mailto:" + (t.contact_email || "");
+---
+
+<footer>
+    <div class="container">
+        <div class="foot-top">
+            <div class="foot-brand">
+                <h3>Pol<br /><b>Sánchez Baena</b></h3>
+                <p>{t.footer_tagline}</p>
+            </div>
+            <div class="foot-col">
+                <h5>{t.footer_nav_title}</h5>
+                <a href={`${base}/#work`}>{t.nav_work}</a>
+                <a href={`${base}/#vertical`}>{t.nav_vertical}</a>
+                <a href={`${base}/portfolio`}>{t.nav_portfolio}</a>
+                <a href={`${base}/#about`}>{t.nav_about}</a>
+                <a href={`${base}/#contact`}>{t.nav_contact}</a>
+            </div>
+            <div class="foot-col">
+                <h5>{t.footer_contact_title}</h5>
+                <a href={emailHref}>{t.contact_email}</a>
+                <a href={phoneHref}>{t.contact_phone}</a>
+                <a href="#">{t.footer_location}</a>
+            </div>
+            <div class="foot-col">
+                <h5>{t.footer_social_title}</h5>
+                <a href="#">Instagram</a>
+                <a href="#">YouTube</a>
+                <a href="#">Vimeo</a>
+                <a href="#">LinkedIn</a>
+            </div>
+        </div>
+        <div class="foot-bottom">
+            <span><b>{t.footer_copyright}</b></span>
+            <span class="mono">{t.footer_version}</span>
+        </div>
+    </div>
+</footer>

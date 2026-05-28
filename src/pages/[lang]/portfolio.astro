@@ -1,0 +1,234 @@
+---
+import type { ActiveLang } from "../../i18n";
+import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
+import { loadCms } from "../../lib/cms-store";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Project } from "../../lib/cms-types";
+
+export const prerender = false;
+
+const { lang } = Astro.params as { lang?: string };
+if (!lang || !LANGS.includes(lang as ActiveLang)) {
+    return Astro.redirect(`/${DEFAULT_LANG}/portfolio`, 308);
+}
+const activeLang = lang as ActiveLang;
+const t = await getDict(activeLang);
+const cms = await loadCms();
+
+const sortedHorizontal: Project[] = cms.projects
+    .filter((p) => p.type === "horizontal")
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+const sortedVertical: Project[] = cms.projects
+    .filter((p) => p.type === "vertical")
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+const base = `/${activeLang}`;
+const title = activeLang === "es"
+    ? "Portfolio · Pol Sánchez Baena"
+    : "Portfolio · Pol Sánchez Baena";
+const tags = Array.from(new Set(cms.projects.map((p) => p.tag).filter((tag): tag is string => Boolean(tag))));
+
+const counts = {
+    all: cms.projects.length,
+    horizontal: sortedHorizontal.length,
+    vertical: sortedVertical.length,
+    byTag: Object.fromEntries(tags.map((tag) => [tag, cms.projects.filter((p) => p.tag === tag).length])),
+};
+
+const sizeMap: Array<"half" | "half" | "eq" | "eq" | "eq" | "half" | "half"> = [
+    "half",
+    "half",
+    "eq",
+    "eq",
+    "eq",
+    "half",
+    "half",
+];
+---
+
+<BaseLayout activeLang={activeLang} t={t} title={title} description={String(t.portfolio_sub)} activeNav="portfolio">
+    <section class="page-head">
+        <div class="container">
+            <div class="crumb">
+                <a href={`${base}/`}>{t.portfolio_crumb_home}</a>
+                <span>/</span>
+                <span>{t.portfolio_crumb_label}</span>
+            </div>
+            <h1 class="reveal" set:html={t.portfolio_title} />
+            <p class="sub reveal" style="transition-delay:.1s">{t.portfolio_sub}</p>
+        </div>
+    </section>
+
+    <div class="filter-bar">
+        <div class="container inner">
+            <div class="chips" id="chips">
+                <button class="chip active" data-filter="all">{t.portfolio_filter_all} <span class="count">{String(counts.all).padStart(2, "0")}</span></button>
+                <button class="chip" data-filter="horizontal">{t.portfolio_filter_horizontal} <span class="count">{String(counts.horizontal).padStart(2, "0")}</span></button>
+                <button class="chip" data-filter="vertical">{t.portfolio_filter_vertical} <span class="count">{String(counts.vertical).padStart(2, "0")}</span></button>
+                {tags.map((tag) => (
+                    <button class="chip" data-filter={`tag:${tag}`}>{tag} <span class="count">{String(counts.byTag[tag]).padStart(2, "0")}</span></button>
+                ))}
+            </div>
+            <div class="sort">
+                <span>{t.portfolio_sort_label}</span>
+                <select id="sort">
+                    <option value="order">{t.portfolio_sort_order}</option>
+                    <option value="recent">{t.portfolio_sort_recent}</option>
+                    <option value="old">{t.portfolio_sort_old}</option>
+                    <option value="title">{t.portfolio_sort_title}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <section class="portfolio">
+        <div class="container">
+            <div id="horizontalSection">
+                <div class="section-divider">
+                    <h2 set:html={t.portfolio_section_horizontal} />
+                    <span class="line"></span>
+                    <span class="count" id="hCount">{String(sortedHorizontal.length).padStart(2, "0")} {t.portfolio_count_pieces}</span>
+                </div>
+                <div class="h-list" id="hList">
+                    {sortedHorizontal.map((p, i) => {
+                        const size = sizeMap[i % sizeMap.length];
+                        const cover = p.cover || "/images/portfolio-irl.png";
+                        const tagLine = [p.format, p.duration].filter(Boolean).join(" · ");
+                        return (
+                            <a
+                                class={`case ${size} reveal`}
+                                style={i > 0 ? `transition-delay:${(i % 3) * 0.06}s` : undefined}
+                                href={`${base}/project/${p.id}`}
+                                data-type={p.type}
+                                data-tag={p.tag ?? ""}
+                                data-year={p.year ?? ""}
+                                data-title={p.title}
+                            >
+                                <div class="ph"><img src={cover} alt={p.title} loading={i < 2 ? "eager" : "lazy"} /></div>
+                                <span class="num-pin">{String(i + 1).padStart(2, "0")} / {String(sortedHorizontal.length).padStart(2, "0")}</span>
+                                <span class="play-pin"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                                <div class="meta">
+                                    <h3>{p.title}{p.subtitle && <small>{p.subtitle}{p.year ? ` · ${p.year}` : ""}</small>}</h3>
+                                    {tagLine && <span class="tag">{tagLine}</span>}
+                                </div>
+                            </a>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div id="verticalSection">
+                <div class="section-divider">
+                    <h2 set:html={t.portfolio_section_vertical} />
+                    <span class="line"></span>
+                    <span class="count" id="vCount">{String(sortedVertical.length).padStart(2, "0")} {t.portfolio_count_pieces}</span>
+                </div>
+                <div class="v-list" id="vList">
+                    {sortedVertical.map((p, i) => {
+                        const cover = p.cover || "/images/portfolio-music.png";
+                        return (
+                            <a
+                                class="v-card reveal"
+                                style={i > 0 ? `transition-delay:${(i % 5) * 0.05}s` : undefined}
+                                href={`${base}/project/${p.id}`}
+                                data-type={p.type}
+                                data-tag={p.tag ?? ""}
+                                data-year={p.year ?? ""}
+                                data-title={p.title}
+                            >
+                                <div class="phone-shell-mini">
+                                    <div class="notch"></div>
+                                    <div class="screen">
+                                        <img src={cover} alt={p.title} loading="lazy" />
+                                        <div class="cap">
+                                            <h4>{p.title}</h4>
+                                            {p.subtitle && <span>{p.subtitle}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <b>{p.views || "—"}</b>
+                                    <span>{p.platform || ""}</span>
+                                </div>
+                            </a>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script is:inline>
+        (function () {
+            var state = { filter: "all", sort: "order" };
+
+            function applyFilter(card) {
+                if (state.filter === "all") return true;
+                if (state.filter === "horizontal" || state.filter === "vertical") {
+                    return card.dataset.type === state.filter;
+                }
+                if (state.filter.indexOf("tag:") === 0) {
+                    return (card.dataset.tag || "") === state.filter.slice(4);
+                }
+                return true;
+            }
+
+            function rerender() {
+                var hSec = document.getElementById("horizontalSection");
+                var vSec = document.getElementById("verticalSection");
+                var hList = document.getElementById("hList");
+                var vList = document.getElementById("vList");
+                var hCount = document.getElementById("hCount");
+                var vCount = document.getElementById("vCount");
+
+                var hCards = Array.from(hList.children);
+                var vCards = Array.from(vList.children);
+
+                function sortCards(list) {
+                    if (state.sort === "recent") {
+                        list.sort(function (a, b) { return Number(b.dataset.year || 0) - Number(a.dataset.year || 0); });
+                    } else if (state.sort === "old") {
+                        list.sort(function (a, b) { return Number(a.dataset.year || 0) - Number(b.dataset.year || 0); });
+                    } else if (state.sort === "title") {
+                        list.sort(function (a, b) { return (a.dataset.title || "").localeCompare(b.dataset.title || ""); });
+                    }
+                    list.forEach(function (el) { el.parentNode.appendChild(el); });
+                }
+
+                sortCards(hCards);
+                sortCards(vCards);
+
+                var hVisible = 0;
+                hCards.forEach(function (c) {
+                    var show = applyFilter(c);
+                    c.style.display = show ? "" : "none";
+                    if (show) hVisible++;
+                });
+                var vVisible = 0;
+                vCards.forEach(function (c) {
+                    var show = applyFilter(c);
+                    c.style.display = show ? "" : "none";
+                    if (show) vVisible++;
+                });
+                if (hSec) hSec.hidden = hVisible === 0;
+                if (vSec) vSec.hidden = vVisible === 0;
+                if (hCount) hCount.textContent = String(hVisible).padStart(2, "0") + " " + (hCount.textContent.split(" ").slice(1).join(" "));
+                if (vCount) vCount.textContent = String(vVisible).padStart(2, "0") + " " + (vCount.textContent.split(" ").slice(1).join(" "));
+            }
+
+            document.querySelectorAll(".chip").forEach(function (chip) {
+                chip.addEventListener("click", function () {
+                    document.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
+                    chip.classList.add("active");
+                    state.filter = chip.dataset.filter;
+                    rerender();
+                });
+            });
+            var sortSel = document.getElementById("sort");
+            if (sortSel) sortSel.addEventListener("change", function (e) {
+                state.sort = e.target.value;
+                rerender();
+            });
+        })();
+    </script>
+</BaseLayout>

@@ -1,0 +1,67 @@
+---
+import type { ActiveLang, LocaleTexts } from "../i18n";
+
+interface Props {
+    activeLang: ActiveLang;
+    t: LocaleTexts;
+    activeKey?: "home" | "portfolio";
+}
+
+const { activeLang, t, activeKey = "home" } = Astro.props;
+const base = `/${activeLang}`;
+
+function swapLang(target: ActiveLang): string {
+    const path = Astro.url.pathname;
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length > 0 && (parts[0] === "es" || parts[0] === "en")) {
+        parts[0] = target;
+    } else {
+        parts.unshift(target);
+    }
+    const trailing = path.endsWith("/") ? "/" : "";
+    return "/" + parts.join("/") + trailing;
+}
+---
+
+<header class="nav">
+    <div class="nav-inner">
+        <a class="brand" href={`${base}/`}>
+            <span class="dot"></span>
+            <b>Pol Sánchez Baena</b>
+            <span class="sub">/ {t.hero_role_label}</span>
+        </a>
+        <nav class="nav-links">
+            <a href={`${base}/#work`}>{t.nav_work}</a>
+            <a href={`${base}/#vertical`}>{t.nav_vertical}</a>
+            <a class={activeKey === "portfolio" ? "active" : undefined} href={`${base}/portfolio`}>{t.nav_portfolio}</a>
+            <a href={`${base}/#process`}>{t.nav_process}</a>
+            <a href={`${base}/#about`}>{t.nav_about}</a>
+            <a href={`${base}/#contact`}>{t.nav_contact}</a>
+        </nav>
+        <div class="nav-cta">
+            <div class="availability"><span class="live"></span> {t.nav_availability}</div>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <div class="lang-switch">
+                <a class={activeLang === "es" ? "active" : undefined} href={swapLang("es")} aria-current={activeLang === "es" ? "page" : undefined}>ES</a>
+                <a class={activeLang === "en" ? "active" : undefined} href={swapLang("en")} aria-current={activeLang === "en" ? "page" : undefined}>EN</a>
+            </div>
+            <a class="btn solid" href={`${base}/#contact`}>{t.nav_cta} <span class="arr">→</span></a>
+        </div>
+    </div>
+</header>
+
+<script is:inline>
+    (function () {
+        var btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            var next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('psb_theme', next); } catch (e) {}
+        });
+    })();
+</script>

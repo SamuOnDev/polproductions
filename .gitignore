@@ -15,7 +15,11 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
 .env.production
+
+# Local dev CMS fallback (when no KV is configured)
+.cache/
 
 # macOS-specific files
 .DS_Store

@@ -1,0 +1,212 @@
+---
+import type { ActiveLang } from "../../../i18n";
+import { LANGS, DEFAULT_LANG, getDict } from "../../../i18n";
+import { loadCms } from "../../../lib/cms-store";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import type { Project } from "../../../lib/cms-types";
+
+export const prerender = false;
+
+const { lang, id } = Astro.params as { lang?: string; id?: string };
+if (!lang || !LANGS.includes(lang as ActiveLang)) {
+    return Astro.redirect(`/${DEFAULT_LANG}/portfolio`, 308);
+}
+const activeLang = lang as ActiveLang;
+const t = await getDict(activeLang);
+const cms = await loadCms();
+const project = id ? cms.projects.find((p) => p.id === id) : undefined;
+
+const base = `/${activeLang}`;
+const title = project
+    ? `${project.title} · Pol Sánchez Baena`
+    : `${t.project_notfound_title.toString().replace(/<[^>]*>/g, "")} · Pol Sánchez Baena`;
+
+function videoEmbedHtml(url: string | undefined): string | null {
+    if (!url) return null;
+    let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+    if (m) return `<iframe src="https://www.youtube.com/embed/${m[1]}?rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (m) return `<iframe src="https://player.vimeo.com/video/${m[1]}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+    if (/\.(mp4|webm|mov)(\?|$)/i.test(url)) return `<video src="${url}" controls playsinline></video>`;
+    return null;
+}
+
+const embed = project ? videoEmbedHtml(project.videoUrl) : null;
+const isVertical = project?.type === "vertical";
+const tagLine = project
+    ? (isVertical
+        ? [project.platform, project.views].filter(Boolean).join(" · ")
+        : [project.format, project.duration, project.year ? String(project.year) : ""].filter(Boolean).join(" · "))
+    : "";
+
+const related: Project[] = project
+    ? cms.projects
+          .filter((x) => x.id !== project.id && x.type === project.type)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 2)
+    : [];
+
+const credits = project?.credits
+    ? project.credits
+          .split(/\s·\s|\n/)
+          .map((line) => {
+              const [a, ...rest] = line.split(":");
+              const role = rest.length ? a : "";
+              const who = rest.length ? rest.join(":") : a;
+              return { role: role.trim(), who: who.trim() };
+          })
+          .filter((row) => row.who)
+    : [];
+---
+
+<BaseLayout activeLang={activeLang} t={t} title={title} description={project?.description ?? ""} activeNav="portfolio">
+    {!project && (
+        <section class="notfound">
+            <div class="container">
+                <h1 set:html={t.project_notfound_title} />
+                <p>{t.project_notfound_desc}</p>
+                <a class="btn solid" href={`${base}/portfolio`}>{t.project_notfound_back}</a>
+            </div>
+        </section>
+    )}
+
+    {project && (
+        <>
+            <section class="page-head project-hero">
+                <div class="container">
+                    <div class="crumb">
+                        <a href={`${base}/`}>{t.project_crumb_home}</a>
+                        <span>/</span>
+                        <a href={`${base}/portfolio`}>{t.project_crumb_portfolio}</a>
+                        <span>/</span>
+                        <span>{project.title}</span>
+                    </div>
+                    <div class="top">
+                        <span class="pill accent">{isVertical ? t.project_pill_vertical : `${project.format || "16:9"} · ${t.project_pill_horizontal}`}</span>
+                        {project.tag && <span class="pill">{project.tag}</span>}
+                        {project.year && <span class="pill">{project.year}</span>}
+                    </div>
+                    <h1>{project.title}{project.subtitle ? "." : ""}</h1>
+                    {project.subtitle && (
+                        <p class="lead">{project.subtitle}{project.client && (<> · <b style="font-weight:500">{project.client}</b></>)}</p>
+                    )}
+                </div>
+            </section>
+
+            <section class="player-wrap">
+                <div class="container">
+                    <div class={`player ${isVertical ? "vertical" : "horizontal"}`} id="player" data-embed={embed ?? ""}>
+                        <div class="cover-state" id="coverState">
+                            <img src={project.cover || "/images/hero-showreel-cover.jpg"} alt={project.title} />
+                            <span class="video-tc">{tagLine || (isVertical ? "9:16" : "16:9")}</span>
+                            <button class="play-cta" id="playBtn" type="button">
+                                <span class="ico"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                                {embed ? t.project_play_video : t.project_no_video}
+                            </button>
+                        </div>
+                    </div>
+                    {!embed && <p class="no-video-note">{t.project_no_video_note}</p>}
+                </div>
+            </section>
+
+            <section class="details">
+                <div class="container">
+                    <div class="details-grid">
+                        <div>
+                            <h2 set:html={t.project_about_title} />
+                            {project.description
+                                ? project.description.split(/\n\n+/).map((para, i) => (
+                                      <p class={i === 0 ? "lead" : undefined}>{para}</p>
+                                  ))
+                                : <p class="lead">{t.project_about_pending}</p>}
+                        </div>
+                        <aside class="meta-card">
+                            <h4>{t.project_meta_title}</h4>
+                            <dl>
+                                {project.client && <div class="row"><dt>{t.project_meta_client}</dt><dd>{project.client}</dd></div>}
+                                {project.role && <div class="row"><dt>{t.project_meta_role}</dt><dd>{project.role}</dd></div>}
+                                {project.year && <div class="row"><dt>{t.project_meta_year}</dt><dd>{project.year}</dd></div>}
+                                {project.format && <div class="row"><dt>{t.project_meta_format}</dt><dd>{project.format}</dd></div>}
+                                {project.duration && <div class="row"><dt>{t.project_meta_duration}</dt><dd>{project.duration}</dd></div>}
+                                {project.platform && <div class="row"><dt>{t.project_meta_platform}</dt><dd>{project.platform}</dd></div>}
+                                {project.views && <div class="row"><dt>{t.project_meta_views}</dt><dd>{project.views}</dd></div>}
+                                {project.tools && (
+                                    <div class="row">
+                                        <dt>{t.project_meta_tools}</dt>
+                                        <dd>
+                                            <div class="tools">
+                                                {project.tools.split(",").map((tool) => <span>{tool.trim()}</span>)}
+                                            </div>
+                                        </dd>
+                                    </div>
+                                )}
+                            </dl>
+                            <div class="cta">
+                                {project.videoUrl && <a class="btn ghost" href={project.videoUrl} target="_blank" rel="noopener">{t.project_cta_external}</a>}
+                                <a class="btn solid" href={`${base}/#contact`}>{t.project_cta_similar} <span class="arr">→</span></a>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+
+            {credits.length > 0 && (
+                <section class="credits">
+                    <div class="container">
+                        <div class="credits-wrap">
+                            <h3 set:html={t.project_credits_title} />
+                            <div class="credit-list">
+                                {credits.map((row) => (
+                                    <div class="credit-row"><span>{row.role || "—"}</span><b>{row.who}</b></div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {related.length > 0 && (
+                <section class="related">
+                    <div class="container">
+                        <h3 set:html={isVertical ? t.project_related_vertical : t.project_related_horizontal} />
+                        <p class="sub">{t.project_related_sub}</p>
+                        <div class="related-grid">
+                            {related.map((r) => (
+                                <a class={`related-card ${r.type === "vertical" ? "vertical" : ""}`} href={`${base}/project/${r.id}`}>
+                                    <div class="ph"><img src={r.cover || ""} alt={r.title} /></div>
+                                    <div class="label">
+                                        <span class="dir">{r.tag || (r.type === "vertical" ? t.portfolio_filter_vertical : t.portfolio_filter_horizontal)}{r.year ? ` · ${r.year}` : ""}</span>
+                                        <h4>{r.title}</h4>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            <script is:inline>
+                (function () {
+                    var player = document.getElementById("player");
+                    var cover = document.getElementById("coverState");
+                    if (!player || !cover) return;
+                    var embed = player.getAttribute("data-embed");
+                    if (!embed) {
+                        cover.style.cursor = "default";
+                        return;
+                    }
+                    cover.addEventListener("click", function () {
+                        player.innerHTML = embed;
+                        var ifr = player.querySelector("iframe");
+                        if (ifr) {
+                            var sep = ifr.src.indexOf("?") >= 0 ? "&" : "?";
+                            ifr.src = ifr.src + sep + "autoplay=1";
+                        }
+                        var vid = player.querySelector("video");
+                        if (vid) vid.play();
+                    });
+                })();
+            </script>
+        </>
+    )}
+</BaseLayout>

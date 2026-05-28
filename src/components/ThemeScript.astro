@@ -1,0 +1,16 @@
+---
+// Inline script to apply stored theme before paint (avoid FOUC)
+---
+<script is:inline>
+    (function () {
+        try {
+            var t = localStorage.getItem('psb_theme');
+            if (!t) {
+                t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
+</script>
