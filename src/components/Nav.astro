@@ -27,12 +27,10 @@ function swapLang(target: ActiveLang): string {
     <div class="nav-inner">
         <a class="brand" href={`${base}/`}>
             <span class="dot"></span>
-            <b>Pol Sánchez Baena</b>
-            <span class="sub">/ {t.hero_role_label}</span>
+            <b>Pol Sánchez</b>
+            <span class="sub">/ {t.nav_role_label}</span>
         </a>
         <nav class="nav-links">
-            <a href={`${base}/#work`}>{t.nav_work}</a>
-            <a href={`${base}/#vertical`}>{t.nav_vertical}</a>
             <a class={activeKey === "portfolio" ? "active" : undefined} href={`${base}/portfolio`}>{t.nav_portfolio}</a>
             <a href={`${base}/#process`}>{t.nav_process}</a>
             <a href={`${base}/#about`}>{t.nav_about}</a>

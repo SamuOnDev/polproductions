@@ -137,7 +137,19 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 36px;
+    gap: 24px;
+    flex-wrap: nowrap;
+}
+.nav-inner > * {
+    min-width: 0;
+}
+.brand,
+.brand b,
+.brand .sub,
+.nav-links a,
+.availability,
+.nav-cta .btn {
+    white-space: nowrap;
 }
 .brand {
     display: flex;
@@ -202,7 +214,7 @@ img {
 .nav-cta {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 12px;
 }
 .availability {
     display: flex;
