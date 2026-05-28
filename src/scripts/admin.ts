@@ -5,17 +5,40 @@
  * of localStorage.
  * ===================================================== */
 import type { CmsData, Project, ProjectType, HorizontalSize } from "../lib/cms-types";
+import { HOME_TEXT_GROUPS, type HomeTextField } from "../lib/home-editable";
+import esDict from "../i18n/locales/es.json";
+import enDict from "../i18n/locales/en.json";
 
-type Route = "dashboard" | "proyectos" | "imagenes" | "ajustes";
+type Route = "dashboard" | "home" | "proyectos" | "biblioteca" | "ajustes";
 
 const $ = <T extends Element = Element>(s: string, root: ParentNode = document) =>
     root.querySelector(s) as T | null;
 const $$ = <T extends Element = Element>(s: string, root: ParentNode = document) =>
     Array.from(root.querySelectorAll(s)) as T[];
 
-let cms: CmsData = { images: {}, projects: [] };
+let cms: CmsData = {
+    images: {},
+    media: { heroShowreelImage: "", heroShowreelVideoUrl: "", aboutPortraitImage: "" },
+    text: { es: {}, en: {} },
+    projects: [],
+};
 let currentRoute: Route = "dashboard";
 let projectFilter: "horizontal" | "vertical" | "all" = "horizontal";
+let homeTab: "media" | "text" | "visibility" = "media";
+let homeTextLang: "es" | "en" = "es";
+const fallbackText: { es: Record<string, string>; en: Record<string, string> } = {
+    es: dictAsStrings(esDict as Record<string, unknown>),
+    en: dictAsStrings(enDict as Record<string, unknown>),
+};
+
+function dictAsStrings(d: Record<string, unknown>): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const k of Object.keys(d)) {
+        const v = d[k];
+        if (typeof v === "string") out[k] = v;
+    }
+    return out;
+}
 
 function uid() {
     return "p_" + Math.random().toString(36).slice(2, 9);
@@ -99,8 +122,9 @@ function mountLogin() {
 /* ── ROUTING ──────────────────────────────────────────── */
 const ROUTES: Record<Route, { title: string; render: (root: HTMLElement) => void }> = {
     dashboard: { title: "Resumen", render: renderDashboard },
+    home: { title: "Home", render: renderHome },
     proyectos: { title: "Proyectos", render: renderProyectos },
-    imagenes: { title: "Imágenes", render: renderImagenes },
+    biblioteca: { title: "Biblioteca", render: renderBiblioteca },
     ajustes: { title: "Ajustes", render: renderAjustes },
 };
 
@@ -139,16 +163,17 @@ function renderDashboard(root: HTMLElement) {
                 <span class="l">${HhoMe + VhoMe} en home</span>
             </div>
             <div class="dash-card">
-                <span class="l">Imágenes globales</span>
-                <span class="n"><b>${Object.keys(cms.images).length}</b></span>
-                <span class="l">Hero · Retrato</span>
+                <span class="l">Reel principal</span>
+                <span class="n"><b>${cms.media.heroShowreelVideoUrl ? "✓" : "—"}</b></span>
+                <span class="l">${cms.media.heroShowreelVideoUrl ? "vídeo configurado" : "sin vídeo"}</span>
             </div>
         </div>
         <div class="section-card">
             <h3>Acciones rápidas <small>atajos</small></h3>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <button class="btn solid" data-go="proyectos">+ Nuevo proyecto</button>
-                <button class="btn ghost" data-go="imagenes">Imágenes</button>
+                <button class="btn ghost" data-go="home">Editar home</button>
+                <button class="btn ghost" data-go="biblioteca">Biblioteca</button>
                 <a class="btn ghost" href="/" target="_blank">Ver la web →</a>
             </div>
         </div>
@@ -555,74 +580,331 @@ function closeDrawer() {
     $("#drawer")?.classList.remove("open");
 }
 
-/* ── IMÁGENES ─────────────────────────────────────────── */
-function renderImagenes(root: HTMLElement) {
+/* ── HOME ─────────────────────────────────────────────── */
+function renderHome(root: HTMLElement) {
+    root.innerHTML = `
+        <div class="proj-head">
+            <div class="tabs" role="tablist">
+                <button class="tab ${homeTab === "media" ? "active" : ""}" data-htab="media">Media</button>
+                <button class="tab ${homeTab === "text" ? "active" : ""}" data-htab="text">Textos</button>
+                <button class="tab ${homeTab === "visibility" ? "active" : ""}" data-htab="visibility">Visibilidad</button>
+            </div>
+        </div>
+        <div id="homeTabBody"></div>
+    `;
+    root.querySelectorAll<HTMLElement>(".tab[data-htab]").forEach((t) =>
+        t.addEventListener("click", () => {
+            homeTab = t.dataset.htab as typeof homeTab;
+            navigate("home");
+        }),
+    );
+    const body = root.querySelector("#homeTabBody") as HTMLElement;
+    if (homeTab === "media") renderHomeMedia(body);
+    else if (homeTab === "text") renderHomeText(body);
+    else renderHomeVisibility(body);
+}
+
+function renderHomeMedia(root: HTMLElement) {
     root.innerHTML = `
         <div class="section-card">
-            <h3>Imágenes globales <small>hero · retrato</small></h3>
-            <div class="row2" id="globalImgs"></div>
+            <h3>Reel principal <small>se reproduce en bucle en la home</small></h3>
+            <div class="row2" id="heroBlock"></div>
         </div>
         <div class="section-card">
-            <h3>Portadas de proyectos <small>${cms.projects.length} proyectos</small></h3>
-            <div class="img-grid" id="projImgs"></div>
+            <h3>Sobre mí <small>retrato grande</small></h3>
+            <div class="row2" id="aboutBlock"></div>
         </div>
     `;
-    const globals = [
-        { key: "hero.showreel", label: "Portada del showreel (hero)" },
-        { key: "about.portrait", label: "Retrato de la sección About" },
-    ];
-    const gWrap = root.querySelector("#globalImgs") as HTMLElement;
-    globals.forEach((g) => {
-        const src = cms.images[g.key] || "";
-        const div = document.createElement("div");
-        div.className = "field";
-        div.innerHTML = `
-            <label>${g.label} <i>${g.key}</i></label>
-            <div class="img-picker">
-                <div class="preview">${src ? `<img src="${escapeHtml(src)}" alt="">` : "Sin imagen"}</div>
-                <div class="pick">
-                    <input type="file" accept="image/*" id="gf-${g.key.replace(/\W/g, "_")}" />
-                    <label for="gf-${g.key.replace(/\W/g, "_")}" class="file-btn">📷 Subir</label>
-                    <input type="text" value="${escapeHtml(src)}" data-globkey="${g.key}" placeholder="URL pública" />
-                </div>
+    const heroBlock = root.querySelector("#heroBlock") as HTMLElement;
+    heroBlock.appendChild(buildMediaImageField("Imagen del reel (fallback / poster)", cms.media.heroShowreelImage || "", async (v) => {
+        cms.media.heroShowreelImage = v;
+        await persist();
+    }));
+    heroBlock.appendChild(buildMediaVideoField("URL del vídeo del reel", cms.media.heroShowreelVideoUrl || "", async (v) => {
+        cms.media.heroShowreelVideoUrl = v;
+        await persist();
+    }));
+
+    const aboutBlock = root.querySelector("#aboutBlock") as HTMLElement;
+    aboutBlock.appendChild(buildMediaImageField("Retrato de la sección Sobre mí", cms.media.aboutPortraitImage || "", async (v) => {
+        cms.media.aboutPortraitImage = v;
+        await persist();
+    }));
+}
+
+function buildMediaImageField(label: string, value: string, save: (v: string) => Promise<void>): HTMLElement {
+    const div = document.createElement("div");
+    div.className = "field";
+    const id = "mf-" + Math.random().toString(36).slice(2, 8);
+    div.innerHTML = `
+        <label>${escapeHtml(label)}</label>
+        <div class="img-picker">
+            <div class="preview">${value ? `<img src="${escapeHtml(value)}" alt="">` : "Sin imagen"}</div>
+            <div class="pick">
+                <input type="file" accept="image/*" id="${id}" />
+                <label for="${id}" class="file-btn">📷 Subir imagen</label>
+                <input type="text" value="${escapeHtml(value)}" placeholder="o pega una URL (/images/…)" />
             </div>
-        `;
-        gWrap.appendChild(div);
-        const fileInput = div.querySelector(`#gf-${g.key.replace(/\W/g, "_")}`) as HTMLInputElement;
-        const textInput = div.querySelector("[data-globkey]") as HTMLInputElement;
-        const preview = div.querySelector(".preview") as HTMLElement;
-        fileInput.addEventListener("change", async () => {
-            const f = fileInput.files?.[0];
-            if (!f) return;
-            const uploaded = await uploadFile(f);
-            if (!uploaded) return;
-            cms.images[g.key] = uploaded;
-            textInput.value = uploaded;
-            preview.innerHTML = `<img src="${uploaded}" alt="">`;
-            await persist();
-        });
-        textInput.addEventListener("change", async () => {
-            cms.images[g.key] = textInput.value;
-            preview.innerHTML = textInput.value ? `<img src="${escapeHtml(textInput.value)}" alt="">` : "Sin imagen";
-            await persist();
+        </div>
+    `;
+    const fileInput = div.querySelector(`#${id}`) as HTMLInputElement;
+    const textInput = div.querySelector('input[type="text"]') as HTMLInputElement;
+    const preview = div.querySelector(".preview") as HTMLElement;
+    fileInput.addEventListener("change", async () => {
+        const f = fileInput.files?.[0];
+        if (!f) return;
+        const localUrl = await fileToDataUrl(f);
+        preview.innerHTML = `<img src="${localUrl}" alt="">`;
+        const uploaded = await uploadFile(f);
+        const finalUrl = uploaded ?? localUrl;
+        textInput.value = finalUrl;
+        preview.innerHTML = `<img src="${finalUrl}" alt="">`;
+        await save(finalUrl);
+    });
+    textInput.addEventListener("change", async () => {
+        const v = textInput.value;
+        preview.innerHTML = v ? `<img src="${escapeHtml(v)}" alt="">` : "Sin imagen";
+        await save(v);
+    });
+    return div;
+}
+
+function buildMediaVideoField(label: string, value: string, save: (v: string) => Promise<void>): HTMLElement {
+    const div = document.createElement("div");
+    div.className = "field";
+    div.innerHTML = `
+        <label>${escapeHtml(label)}</label>
+        <input type="url" value="${escapeHtml(value)}" placeholder="https://youtu.be/…  ·  https://…/clip.mp4" />
+        <span class="field-hint">YouTube, Vimeo o link directo .mp4 / .webm. Se reproduce silenciado y en bucle. Deja vacío para usar solo la imagen.</span>
+    `;
+    const input = div.querySelector("input") as HTMLInputElement;
+    input.addEventListener("change", async () => {
+        await save(input.value.trim());
+    });
+    return div;
+}
+
+function renderHomeText(root: HTMLElement) {
+    const overrides = cms.text[homeTextLang] || {};
+    root.innerHTML = `
+        <div class="section-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <p style="font-size:13px;color:var(--muted);margin:0">Sobrescribe los textos de la home por idioma. Si dejas un campo vacío, se usa el texto por defecto del sitio.</p>
+            <div class="tabs">
+                <button class="tab ${homeTextLang === "es" ? "active" : ""}" data-tlang="es">ES</button>
+                <button class="tab ${homeTextLang === "en" ? "active" : ""}" data-tlang="en">EN</button>
+            </div>
+        </div>
+        <div id="homeTextGroups"></div>
+    `;
+    root.querySelectorAll<HTMLElement>(".tab[data-tlang]").forEach((t) =>
+        t.addEventListener("click", () => {
+            homeTextLang = t.dataset.tlang as typeof homeTextLang;
+            navigate("home");
+        }),
+    );
+    const wrap = root.querySelector("#homeTextGroups") as HTMLElement;
+    HOME_TEXT_GROUPS.forEach((group) => {
+        const card = document.createElement("div");
+        card.className = "section-card";
+        const inner = group.fields.map((f) => buildTextFieldHtml(f, overrides[f.key] ?? "", fallbackText[homeTextLang][f.key] ?? "")).join("");
+        card.innerHTML = `<h3>${escapeHtml(group.title)} <small>${group.fields.length} campos</small></h3>${inner}`;
+        wrap.appendChild(card);
+        card.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[data-tkey]").forEach((el) => {
+            el.addEventListener("change", async () => {
+                const key = el.dataset.tkey as string;
+                const v = el.value;
+                if (!cms.text[homeTextLang]) cms.text[homeTextLang] = {};
+                if (v.trim() === "") delete cms.text[homeTextLang][key];
+                else cms.text[homeTextLang][key] = v;
+                await persist();
+            });
         });
     });
+}
 
-    const pWrap = root.querySelector("#projImgs") as HTMLElement;
-    if (!cms.projects.length) {
-        pWrap.innerHTML = '<div class="empty-state"><p>Aún no hay proyectos.</p></div>';
-    } else {
-        cms.projects.forEach((p) => {
+function buildTextFieldHtml(field: HomeTextField, value: string, fallback: string): string {
+    const labelHint = field.allowsHtml ? ' <i>admite &lt;b&gt;</i>' : "";
+    const placeholder = fallback ? `por defecto: ${fallback.slice(0, 80)}${fallback.length > 80 ? "…" : ""}` : "";
+    if (field.multiline) {
+        return `
+            <div class="field">
+                <label>${escapeHtml(field.label)}${labelHint}</label>
+                <textarea data-tkey="${escapeHtml(field.key)}" placeholder="${escapeHtml(placeholder)}" style="min-height:80px">${escapeHtml(value)}</textarea>
+            </div>
+        `;
+    }
+    return `
+        <div class="field">
+            <label>${escapeHtml(field.label)}${labelHint}</label>
+            <input type="text" data-tkey="${escapeHtml(field.key)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" />
+        </div>
+    `;
+}
+
+function renderHomeVisibility(root: HTMLElement) {
+    root.innerHTML = `
+        <div class="section-card">
+            <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Controla qué proyectos aparecen en la home y en qué orden. El número más bajo aparece antes.</p>
+            <h3 style="margin-top:6px">Horizontales <small>${cms.projects.filter((p) => p.type === "horizontal").length}</small></h3>
+            <div class="proj-list" id="visH" style="margin-top:10px"></div>
+        </div>
+        <div class="section-card">
+            <h3>Verticales <small>${cms.projects.filter((p) => p.type === "vertical").length}</small></h3>
+            <div class="proj-list" id="visV" style="margin-top:10px"></div>
+        </div>
+    `;
+    const buildList = (type: ProjectType, target: HTMLElement) => {
+        const list = cms.projects.filter((p) => p.type === type).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        if (!list.length) {
+            target.innerHTML = '<div class="empty-state"><p>No hay proyectos de este tipo.</p></div>';
+            return;
+        }
+        list.forEach((p) => target.appendChild(buildVisibilityRow(p)));
+    };
+    buildList("horizontal", root.querySelector("#visH") as HTMLElement);
+    buildList("vertical", root.querySelector("#visV") as HTMLElement);
+}
+
+function buildVisibilityRow(p: Project): HTMLElement {
+    const row = document.createElement("div");
+    row.className = "proj-row " + (p.type === "vertical" ? "vertical" : "");
+    row.innerHTML = `
+        <div class="thumb">${p.cover ? `<img src="${escapeHtml(p.cover)}" alt="">` : ""}</div>
+        <div class="info">
+            <b>${escapeHtml(p.title || "Sin título")}</b>
+            <span>${escapeHtml(p.subtitle || "—")}</span>
+        </div>
+        <div class="meta" style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Orden</span>
+            <input type="number" data-order min="1" step="1" value="${p.order ?? 1}" style="width:64px" />
+        </div>
+        <div class="toggle-home" title="Mostrar en home">
+            <div class="switch ${p.showOnHome !== false ? "on" : ""}" data-toggle></div>
+            <span>${p.showOnHome !== false ? "Visible" : "Oculto"}</span>
+        </div>
+    `;
+    row.querySelector("[data-toggle]")?.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const proj = cms.projects.find((x) => x.id === p.id);
+        if (!proj) return;
+        proj.showOnHome = !(proj.showOnHome !== false);
+        await persist();
+        navigate("home");
+    });
+    row.querySelector("[data-order]")?.addEventListener("change", async (e) => {
+        const proj = cms.projects.find((x) => x.id === p.id);
+        if (!proj) return;
+        const v = Number((e.target as HTMLInputElement).value) || 1;
+        proj.order = v;
+        await persist();
+        navigate("home");
+    });
+    return row;
+}
+
+/* ── BIBLIOTECA ───────────────────────────────────────── */
+function renderBiblioteca(root: HTMLElement) {
+    root.innerHTML = `
+        <div class="section-card">
+            <h3>Subir archivo <small>sin asignar — útil para tener material listo</small></h3>
+            <div class="img-picker">
+                <div class="preview" id="libPreview">Selecciona un archivo</div>
+                <div class="pick">
+                    <input type="file" accept="image/*,video/*" id="libFile" />
+                    <label for="libFile" class="file-btn">📷 Elegir archivo</label>
+                    <span class="field-hint" id="libStatus">Se sube a Vercel Blob. No queda asignado a ningún proyecto hasta que tú lo uses.</span>
+                </div>
+            </div>
+        </div>
+        <div class="section-card">
+            <h3>Archivos subidos <small id="libCount">cargando…</small></h3>
+            <div class="img-grid" id="libGrid"></div>
+        </div>
+    `;
+    const file = root.querySelector("#libFile") as HTMLInputElement;
+    const preview = root.querySelector("#libPreview") as HTMLElement;
+    const status = root.querySelector("#libStatus") as HTMLElement;
+    file.addEventListener("change", async () => {
+        const f = file.files?.[0];
+        if (!f) return;
+        const localUrl = await fileToDataUrl(f);
+        preview.innerHTML = `<img src="${localUrl}" alt="">`;
+        status.textContent = "Subiendo…";
+        const uploaded = await uploadFile(f);
+        if (uploaded) {
+            status.innerHTML = `Subido: <b style="color:var(--ink);font-family:'Roboto Mono',monospace">${escapeHtml(uploaded)}</b>`;
+            await loadAndRenderLibrary(root);
+        } else {
+            status.textContent = "Error en la subida.";
+        }
+    });
+    loadAndRenderLibrary(root);
+}
+
+async function loadAndRenderLibrary(root: HTMLElement) {
+    const grid = root.querySelector("#libGrid") as HTMLElement;
+    const count = root.querySelector("#libCount") as HTMLElement;
+    grid.innerHTML = '<div class="empty-state"><p>Cargando…</p></div>';
+    try {
+        const res = await fetch("/api/blobs");
+        const body = (await res.json()) as { ok: boolean; blobs?: Array<{ url: string; pathname: string; size: number; uploadedAt: string }>; error?: string };
+        if (!res.ok || !body.ok) {
+            grid.innerHTML = `<div class="empty-state"><p>${escapeHtml(body.error || "No se pudieron listar los archivos.")}</p></div>`;
+            count.textContent = "—";
+            return;
+        }
+        const blobs = body.blobs ?? [];
+        count.textContent = `${blobs.length} archivos`;
+        if (!blobs.length) {
+            grid.innerHTML = '<div class="empty-state"><p>Todavía no hay archivos subidos.</p></div>';
+            return;
+        }
+        grid.innerHTML = "";
+        const inUse = new Set<string>();
+        cms.projects.forEach((p) => { if (p.cover) inUse.add(p.cover); });
+        if (cms.media.heroShowreelImage) inUse.add(cms.media.heroShowreelImage);
+        if (cms.media.aboutPortraitImage) inUse.add(cms.media.aboutPortraitImage);
+        blobs.forEach((b) => {
+            const isVideo = /\.(mp4|webm|mov)$/i.test(b.pathname);
             const card = document.createElement("div");
             card.className = "img-card";
-            card.style.cursor = "pointer";
+            const used = inUse.has(b.url);
             card.innerHTML = `
-                <div class="ph">${p.cover ? `<img src="${escapeHtml(p.cover)}" alt="">` : ""}</div>
-                <div class="info"><b>${escapeHtml(p.title || "Sin título")}</b><span>${p.type} · ${escapeHtml(p.subtitle || "")}</span></div>
+                <div class="ph">${isVideo ? `<video src="${escapeHtml(b.url)}" muted></video>` : `<img src="${escapeHtml(b.url)}" alt="">`}</div>
+                <div class="info">
+                    <b>${escapeHtml(b.pathname.replace(/^cms\//, ""))}</b>
+                    <span>${(b.size / 1024).toFixed(0)} KB · ${used ? "<b style='color:var(--green)'>En uso</b>" : "<span style='color:var(--muted)'>Sin usar</span>"}</span>
+                </div>
+                <div style="display:flex;gap:6px;padding:0 12px 12px">
+                    <button class="btn ghost sm" data-copy="${escapeHtml(b.url)}">Copiar URL</button>
+                    <button class="btn danger sm" data-del="${escapeHtml(b.url)}" ${used ? "disabled" : ""}>Eliminar</button>
+                </div>
             `;
-            card.addEventListener("click", () => openProjectDrawer(p.id));
-            pWrap.appendChild(card);
+            grid.appendChild(card);
         });
+        grid.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((b) => {
+            b.addEventListener("click", () => {
+                navigator.clipboard.writeText(b.dataset.copy || "");
+                b.textContent = "✓ Copiado";
+                setTimeout(() => (b.textContent = "Copiar URL"), 1200);
+            });
+        });
+        grid.querySelectorAll<HTMLButtonElement>("[data-del]").forEach((b) => {
+            b.addEventListener("click", async () => {
+                if (b.disabled) return;
+                const url = b.dataset.del as string;
+                if (!confirm(`¿Eliminar este archivo?\n${url}`)) return;
+                const res = await fetch("/api/blobs?url=" + encodeURIComponent(url), { method: "DELETE" });
+                const body2 = await res.json().catch(() => ({}));
+                if (!res.ok || !body2.ok) {
+                    alert(body2.error || "Error al eliminar.");
+                    return;
+                }
+                await loadAndRenderLibrary(root);
+            });
+        });
+    } catch (err) {
+        grid.innerHTML = `<div class="empty-state"><p>${escapeHtml((err as Error).message)}</p></div>`;
     }
 }
 

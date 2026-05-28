@@ -247,9 +247,17 @@ export const DEFAULT_IMAGES: Record<string, string> = {
     "about.portrait": "/images/hero-showreel-cover.jpg",
 };
 
+export const DEFAULT_MEDIA = {
+    heroShowreelImage: "/images/hero-showreel-cover.jpg",
+    heroShowreelVideoUrl: "",
+    aboutPortraitImage: "/images/hero-showreel-cover.jpg",
+};
+
 export function buildDefaults(): CmsData {
     return {
         images: { ...DEFAULT_IMAGES },
+        media: { ...DEFAULT_MEDIA },
+        text: { es: {}, en: {} },
         projects: structuredClone(DEFAULT_PROJECTS),
     };
 }

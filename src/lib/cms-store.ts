@@ -70,8 +70,24 @@ export async function resetCms(): Promise<CmsData> {
 }
 
 function mergeWithDefaults(stored: Partial<CmsData>, defaults: CmsData): CmsData {
+    const images = { ...defaults.images, ...(stored.images ?? {}) };
+    const storedMedia = stored.media ?? {};
+    const media = {
+        heroShowreelImage:
+            storedMedia.heroShowreelImage || images["hero.showreel"] || defaults.media.heroShowreelImage,
+        heroShowreelVideoUrl: storedMedia.heroShowreelVideoUrl ?? defaults.media.heroShowreelVideoUrl ?? "",
+        aboutPortraitImage:
+            storedMedia.aboutPortraitImage || images["about.portrait"] || defaults.media.aboutPortraitImage,
+    };
+    const storedText = stored.text ?? { es: {}, en: {} };
+    const text = {
+        es: { ...defaults.text.es, ...(storedText.es ?? {}) },
+        en: { ...defaults.text.en, ...(storedText.en ?? {}) },
+    };
     return {
-        images: { ...defaults.images, ...(stored.images ?? {}) },
+        images,
+        media,
+        text,
         projects: Array.isArray(stored.projects) ? stored.projects : defaults.projects,
     };
 }

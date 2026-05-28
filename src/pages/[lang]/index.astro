@@ -49,8 +49,19 @@ const logoNames = [
 
 const projectOptions = (t.form_project_options as unknown as string[]) || [];
 const budgetOptions = (t.form_budget_options as unknown as string[]) || [];
-const heroImage = cms.images["hero.showreel"] || "/images/hero-showreel-cover.jpg";
-const aboutImage = cms.images["about.portrait"] || "/images/hero-showreel-cover.jpg";
+const heroImage = cms.media.heroShowreelImage || cms.images["hero.showreel"] || "/images/hero-showreel-cover.jpg";
+const aboutImage = cms.media.aboutPortraitImage || cms.images["about.portrait"] || "/images/hero-showreel-cover.jpg";
+const showreelVideoUrl = cms.media.heroShowreelVideoUrl?.trim() || "";
+const showreelYtId = youtubeId(showreelVideoUrl);
+const showreelIsMp4 = showreelVideoUrl && !showreelYtId && /\.(mp4|webm|mov)(\?|$)/i.test(showreelVideoUrl);
+
+const overrides = cms.text?.[activeLang] ?? {};
+function text(key: string): string {
+    const override = overrides[key];
+    if (typeof override === "string" && override.length > 0) return override;
+    const fallback = t[key];
+    return typeof fallback === "string" ? fallback : "";
+}
 
 const pageTitle =
     activeLang === "es"
@@ -66,13 +77,13 @@ const base = `/${activeLang}`;
         <div class="container">
             <div class="hero-top reveal">
                 <h1>
-                    {t.hero_title_1}<br />
-                    {t.hero_title_2} <b>{t.hero_title_3}</b><br />
-                    {t.hero_title_4} <span class="accent">{t.hero_title_accent}</span>.
+                    {text("hero_title_1")}<br />
+                    {text("hero_title_2")} <b>{text("hero_title_3")}</b><br />
+                    {text("hero_title_4")} <span class="accent">{text("hero_title_accent")}</span>.
                 </h1>
                 <div class="hero-meta">
                     <span class="mono">{t.hero_role_label}</span>
-                    <p class="role" set:html={t.hero_role_desc} />
+                    <p class="role" set:html={text("hero_role_desc")} />
                     <div class="hero-actions">
                         <a class="btn solid" href="#work">{t.hero_cta_work} <span class="arr">→</span></a>
                         <a class="btn ghost" href="#contact">{t.hero_cta_contact}</a>
@@ -82,14 +93,32 @@ const base = `/${activeLang}`;
 
             <div class="showreel reveal" style="transition-delay:.15s">
                 <span class="sr-counter"><span class="live-dot"></span> {t.hero_showreel_label}</span>
-                <a class="sr-play" href="#">
-                    <span class="ico"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-                    {t.hero_showreel_play}
-                </a>
-                <img src={heroImage} alt="Showreel cover" />
+                {!showreelYtId && !showreelIsMp4 && (
+                    <a class="sr-play" href="#work">
+                        <span class="ico"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                        {t.hero_showreel_play}
+                    </a>
+                )}
+                {showreelYtId ? (
+                    <div class="sr-video" data-yt-showreel={showreelYtId}>
+                        <img src={heroImage} alt="Showreel cover" />
+                    </div>
+                ) : showreelIsMp4 ? (
+                    <video
+                        class="sr-video"
+                        src={showreelVideoUrl}
+                        poster={heroImage}
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                    ></video>
+                ) : (
+                    <img src={heroImage} alt="Showreel cover" />
+                )}
                 <div class="sr-meta">
-                    <div class="title">{t.hero_showreel_title} <small>{t.hero_showreel_specs}</small></div>
-                    <div class="info"><b>{t.hero_showreel_pieces}</b><br />{t.hero_showreel_roles}<br />{t.hero_showreel_location}</div>
+                    <div class="title">{text("hero_showreel_title")} <small>{text("hero_showreel_specs")}</small></div>
+                    <div class="info"><b>{text("hero_showreel_pieces")}</b><br />{text("hero_showreel_roles")}<br />{text("hero_showreel_location")}</div>
                 </div>
             </div>
 
@@ -118,8 +147,8 @@ const base = `/${activeLang}`;
         <div class="container">
             <div class="s-head reveal">
                 <span class="num">{t.work_num}</span>
-                <h2 set:html={t.work_title} />
-                <span class="aside"><b>{t.work_aside_title}</b>{t.work_aside_desc}</span>
+                <h2 set:html={text("work_title")} />
+                <span class="aside"><b>{text("work_aside_title")}</b>{text("work_aside_desc")}</span>
             </div>
 
             <div class="work-filters reveal">
@@ -158,7 +187,7 @@ const base = `/${activeLang}`;
             </div>
 
             <div class="work-more reveal">
-                <a class="btn ghost" href={`${base}/portfolio`}>{t.work_more} <span class="arr">→</span></a>
+                <a class="btn ghost" href={`${base}/portfolio`}>{text("work_more")} <span class="arr">→</span></a>
             </div>
         </div>
     </section>
@@ -168,8 +197,8 @@ const base = `/${activeLang}`;
         <div class="container">
             <div class="s-head reveal">
                 <span class="num">{t.vertical_num}</span>
-                <h2 set:html={t.vertical_title} />
-                <span class="aside"><b>{t.vertical_aside_title}</b>{t.vertical_aside_desc}</span>
+                <h2 set:html={text("vertical_title")} />
+                <span class="aside"><b>{text("vertical_aside_title")}</b>{text("vertical_aside_desc")}</span>
             </div>
 
             <div class="v-grid">
@@ -210,17 +239,17 @@ const base = `/${activeLang}`;
             <div class="process-wrap">
                 <div class="process-aside reveal">
                     <span class="num mono">{t.process_num}</span>
-                    <h3 style="margin-top:14px" set:html={t.process_title} />
-                    <p>{t.process_desc}</p>
-                    <span class="badge">{t.process_badge}</span>
+                    <h3 style="margin-top:14px" set:html={text("process_title")} />
+                    <p>{text("process_desc")}</p>
+                    <span class="badge">{text("process_badge")}</span>
                 </div>
                 <div class="steps">
                     {processSteps.map((step, i) => (
                         <div class="step reveal" style={i > 0 ? `transition-delay:${i * 0.06}s` : undefined}>
                             <span class="n">{step.num}</span>
                             <div>
-                                <h4>{t[step.titleKey]}</h4>
-                                <p>{t[step.descKey]}</p>
+                                <h4>{text(step.titleKey)}</h4>
+                                <p>{text(step.descKey)}</p>
                             </div>
                             <span class="when">{t[step.timeKey]}</span>
                         </div>
@@ -236,14 +265,14 @@ const base = `/${activeLang}`;
             <div class="about">
                 <div class="about-portrait reveal">
                     <img src={aboutImage} alt={String(t.about_portrait_alt)} />
-                    <span class="name-tag"><b>{t.about_portrait_tag}</b> · {t.about_portrait_role}</span>
+                    <span class="name-tag"><b>{text("about_portrait_tag")}</b> · {text("about_portrait_role")}</span>
                 </div>
                 <div class="about-copy reveal" style="transition-delay:.1s">
                     <span class="mono" style="display:block;margin-bottom:18px">{t.about_num}</span>
-                    <h2 set:html={t.about_title} />
-                    <p class="lead">{t.about_lead}</p>
-                    <p>{t.about_p1}</p>
-                    <p>{t.about_p2}</p>
+                    <h2 set:html={text("about_title")} />
+                    <p class="lead">{text("about_lead")}</p>
+                    <p>{text("about_p1")}</p>
+                    <p>{text("about_p2")}</p>
                     <div class="facts">
                         <div class="fact"><span>{t.about_fact_1_label}</span><b>{t.about_fact_1_value}</b></div>
                         <div class="fact"><span>{t.about_fact_2_label}</span><b>{t.about_fact_2_value}</b></div>
@@ -261,8 +290,8 @@ const base = `/${activeLang}`;
             <div class="contact">
                 <div class="contact-intro reveal">
                     <span class="mono" style="display:block;margin-bottom:18px">{t.contact_num}</span>
-                    <h2 set:html={t.contact_title} />
-                    <p>{t.contact_desc}</p>
+                    <h2 set:html={text("contact_title")} />
+                    <p>{text("contact_desc")}</p>
 
                     <div class="contact-channels">
                         <a class="channel" href={`mailto:${t.contact_email}`}>
@@ -284,8 +313,8 @@ const base = `/${activeLang}`;
                 </div>
 
                 <form class="form-card reveal" style="transition-delay:.1s" id="contact-form">
-                    <h3>{t.contact_form_title}</h3>
-                    <p class="lead-line">{t.contact_form_lead}</p>
+                    <h3>{text("contact_form_title")}</h3>
+                    <p class="lead-line">{text("contact_form_lead")}</p>
                     <div class="form-grid">
                         <div class="row2">
                             <div class="field">
@@ -372,6 +401,20 @@ const base = `/${activeLang}`;
                     }
                 });
             });
+            // Showreel autoplay YouTube
+            (function () {
+                var sr = document.querySelector('[data-yt-showreel]');
+                if (!sr) return;
+                var id = sr.getAttribute('data-yt-showreel');
+                if (!id) return;
+                var iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube.com/embed/' + id + '?' + ytParams + '&playlist=' + id;
+                iframe.allow = 'autoplay; encrypted-media';
+                iframe.setAttribute('loading', 'lazy');
+                iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
+                sr.appendChild(iframe);
+            })();
+
             document.querySelectorAll('[data-yt-vertical]').forEach(function (card) {
                 var id = card.getAttribute('data-yt-vertical');
                 if (!id) return;

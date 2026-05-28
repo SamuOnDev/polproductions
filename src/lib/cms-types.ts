@@ -24,7 +24,22 @@ export interface Project {
     order?: number;
 }
 
+export interface HomeMedia {
+    heroShowreelImage?: string;
+    heroShowreelVideoUrl?: string;
+    aboutPortraitImage?: string;
+}
+
+export type LocaleOverrides = Record<string, string>;
+
+export interface HomeText {
+    es: LocaleOverrides;
+    en: LocaleOverrides;
+}
+
 export interface CmsData {
     images: Record<string, string>;
+    media: HomeMedia;
+    text: HomeText;
     projects: Project[];
 }

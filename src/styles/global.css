@@ -432,6 +432,7 @@ img {
     overflow: hidden;
     border-radius: var(--r);
 }
+.showreel video,
 .showreel img {
     width: 100%;
     height: 100%;
@@ -448,6 +449,19 @@ img {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.6) 100%);
+}
+.sr-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.sr-video img,
+.sr-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .sr-meta {
     position: absolute;
