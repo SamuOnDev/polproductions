@@ -11,7 +11,7 @@ export const GET: APIRoute = async () => {
 };
 
 export const PUT: APIRoute = async ({ request, cookies }) => {
-    if (!isAuthed(cookies)) return json({ ok: false, error: "No autorizado" }, 401);
+    if (!(await isAuthed(cookies))) return json({ ok: false, error: "No autorizado" }, 401);
     let body: CmsData;
     try {
         body = (await request.json()) as CmsData;

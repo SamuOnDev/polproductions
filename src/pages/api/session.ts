@@ -1,10 +1,11 @@
 import type { APIRoute } from "astro";
-import { isAuthed } from "../../lib/session";
+import { getSession } from "../../lib/session";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ cookies }) => {
-    return new Response(JSON.stringify({ authed: isAuthed(cookies) }), {
+    const session = await getSession(cookies);
+    return new Response(JSON.stringify(session), {
         headers: { "content-type": "application/json" },
     });
 };

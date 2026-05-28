@@ -5,7 +5,7 @@ import { resetCms } from "../../lib/cms-store";
 export const prerender = false;
 
 export const POST: APIRoute = async ({ cookies }) => {
-    if (!isAuthed(cookies)) {
+    if (!(await isAuthed(cookies))) {
         return new Response(JSON.stringify({ ok: false, error: "No autorizado" }), {
             status: 401,
             headers: { "content-type": "application/json" },

@@ -9,7 +9,10 @@ import { HOME_TEXT_GROUPS, type HomeTextField } from "../lib/home-editable";
 import esDict from "../i18n/locales/es.json";
 import enDict from "../i18n/locales/en.json";
 
-type Route = "dashboard" | "home" | "proyectos" | "biblioteca" | "ajustes";
+type Route = "dashboard" | "home" | "proyectos" | "biblioteca" | "usuarios" | "ajustes";
+type UserRole = "admin" | "editor";
+interface CurrentSession { user: string; role: UserRole; }
+interface AdminUser { username: string; role: UserRole; createdAt: number; updatedAt: number; }
 
 const $ = <T extends Element = Element>(s: string, root: ParentNode = document) =>
     root.querySelector(s) as T | null;
@@ -26,6 +29,7 @@ let currentRoute: Route = "dashboard";
 let projectFilter: "horizontal" | "vertical" | "all" = "horizontal";
 let homeTab: "media" | "text" | "visibility" = "media";
 let homeTextLang: "es" | "en" = "es";
+let currentSession: CurrentSession | null = null;
 const fallbackText: { es: Record<string, string>; en: Record<string, string> } = {
     es: dictAsStrings(esDict as Record<string, unknown>),
     en: dictAsStrings(enDict as Record<string, unknown>),
@@ -120,16 +124,18 @@ function mountLogin() {
 }
 
 /* ── ROUTING ──────────────────────────────────────────── */
-const ROUTES: Record<Route, { title: string; render: (root: HTMLElement) => void }> = {
+const ROUTES: Record<Route, { title: string; render: (root: HTMLElement) => void; requiresAdmin?: boolean }> = {
     dashboard: { title: "Resumen", render: renderDashboard },
     home: { title: "Home", render: renderHome },
     proyectos: { title: "Proyectos", render: renderProyectos },
     biblioteca: { title: "Biblioteca", render: renderBiblioteca },
+    usuarios: { title: "Usuarios", render: renderUsuarios, requiresAdmin: true },
     ajustes: { title: "Ajustes", render: renderAjustes },
 };
 
 function navigate(route: Route) {
     if (!ROUTES[route]) route = "dashboard";
+    if (ROUTES[route].requiresAdmin && currentSession?.role !== "admin") route = "dashboard";
     currentRoute = route;
     $$<HTMLElement>(".side-link").forEach((l) => l.classList.toggle("active", l.dataset.route === route));
     ($("#crumb") as HTMLElement).textContent = ROUTES[route].title;
@@ -910,11 +916,18 @@ async function loadAndRenderLibrary(root: HTMLElement) {
 
 /* ── AJUSTES ──────────────────────────────────────────── */
 function renderAjustes(root: HTMLElement) {
+    const sess = currentSession;
+    const sessInfo = sess
+        ? `Conectado como <b style="color:var(--ink);font-family:'Roboto Mono',monospace">${escapeHtml(sess.user)}</b> · rol <b style="color:var(--ink)">${escapeHtml(sess.role)}</b>`
+        : "Sin sesión";
     root.innerHTML = `
         <div class="section-card">
-            <h3>Sesión <small>credenciales en .env</small></h3>
-            <p style="font-size:13px;color:var(--muted);margin-bottom:14px">El usuario y la contraseña están en las variables de entorno del servidor (<b style="color:var(--ink);font-family:'Roboto Mono',monospace">ADMIN_USER</b>, <b style="color:var(--ink);font-family:'Roboto Mono',monospace">ADMIN_PASSWORD</b>). Para cambiarlas, actualiza el <b>.env</b> y redeploy.</p>
-            <button class="btn ghost" id="logoutBtn2">Cerrar sesión</button>
+            <h3>Sesión <small>cuenta de acceso</small></h3>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:14px">${sessInfo}</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn solid" id="changePassBtn">Cambiar mi contraseña</button>
+                <button class="btn ghost" id="logoutBtn2">Cerrar sesión</button>
+            </div>
         </div>
         <div class="section-card">
             <h3>Datos / mantenimiento <small>zona de cuidado</small></h3>
@@ -963,6 +976,236 @@ function renderAjustes(root: HTMLElement) {
         navigate("dashboard");
     });
     root.querySelector("#logoutBtn2")?.addEventListener("click", () => doLogout());
+    root.querySelector("#changePassBtn")?.addEventListener("click", () => openChangePasswordModal());
+}
+
+function openChangePasswordModal() {
+    const existing = document.getElementById("pwModalBg");
+    if (existing) existing.remove();
+    const bg = document.createElement("div");
+    bg.id = "pwModalBg";
+    bg.className = "drawer-bg open";
+    bg.innerHTML = `
+        <aside class="drawer open" role="dialog" aria-modal="true" style="max-width:480px">
+            <div class="drawer-head">
+                <h3>Cambiar contraseña</h3>
+                <button class="icon-btn" id="pwClose" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+            <div class="drawer-body">
+                <div class="field">
+                    <label>Contraseña actual</label>
+                    <input type="password" id="pwCurrent" autocomplete="current-password" />
+                </div>
+                <div class="field">
+                    <label>Nueva contraseña <i>mínimo 12 caracteres</i></label>
+                    <input type="password" id="pwNext" autocomplete="new-password" />
+                </div>
+                <div class="field">
+                    <label>Confirmar nueva contraseña</label>
+                    <input type="password" id="pwConfirm" autocomplete="new-password" />
+                </div>
+                <div class="login-error" id="pwError" style="min-height:18px"></div>
+                <p class="field-hint">Al cambiar la contraseña se cerrarán todas tus sesiones abiertas. Tendrás que volver a entrar.</p>
+            </div>
+            <div class="drawer-foot">
+                <div style="display:flex;gap:10px;margin-left:auto">
+                    <button class="btn ghost" id="pwCancel">Cancelar</button>
+                    <button class="btn solid" id="pwSave">Guardar</button>
+                </div>
+            </div>
+        </aside>
+    `;
+    document.body.appendChild(bg);
+    const close = () => bg.remove();
+    bg.querySelector("#pwClose")?.addEventListener("click", close);
+    bg.querySelector("#pwCancel")?.addEventListener("click", close);
+    bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
+    bg.querySelector("#pwSave")?.addEventListener("click", async () => {
+        const current = ($("#pwCurrent") as HTMLInputElement).value;
+        const next = ($("#pwNext") as HTMLInputElement).value;
+        const confirm = ($("#pwConfirm") as HTMLInputElement).value;
+        const err = $("#pwError") as HTMLElement;
+        err.textContent = "";
+        if (next.length < 12) { err.textContent = "La nueva contraseña debe tener al menos 12 caracteres."; return; }
+        if (next !== confirm) { err.textContent = "Las contraseñas no coinciden."; return; }
+        const res = await fetch("/api/account/password", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ current, next }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body.ok) { err.textContent = body.error || "Error al cambiar la contraseña."; return; }
+        close();
+        alert("Contraseña actualizada. Vuelve a iniciar sesión.");
+        await doLogout();
+    });
+}
+
+/* ── USUARIOS ─────────────────────────────────────────── */
+function renderUsuarios(root: HTMLElement) {
+    if (currentSession?.role !== "admin") {
+        root.innerHTML = '<div class="empty-state"><p>Solo los administradores pueden gestionar usuarios.</p></div>';
+        return;
+    }
+    root.innerHTML = `
+        <div class="proj-head">
+            <h3 style="margin:0">Usuarios del panel <small>${currentSession ? "tú: " + escapeHtml(currentSession.user) : ""}</small></h3>
+            <button class="btn solid" id="newUserBtn">+ Nuevo usuario</button>
+        </div>
+        <div class="section-card">
+            <div id="usersList">Cargando…</div>
+        </div>
+    `;
+    root.querySelector("#newUserBtn")?.addEventListener("click", () => openUserModal(null));
+    loadAndRenderUsers(root);
+}
+
+async function loadAndRenderUsers(root: HTMLElement) {
+    const list = root.querySelector("#usersList") as HTMLElement;
+    try {
+        const res = await fetch("/api/admin/users");
+        const body = (await res.json()) as { ok: boolean; users?: AdminUser[]; error?: string };
+        if (!res.ok || !body.ok || !body.users) {
+            list.innerHTML = `<div class="empty-state"><p>${escapeHtml(body.error || "Error al cargar usuarios.")}</p></div>`;
+            return;
+        }
+        if (!body.users.length) {
+            list.innerHTML = '<div class="empty-state"><p>No hay usuarios.</p></div>';
+            return;
+        }
+        list.innerHTML = "";
+        body.users.forEach((u) => list.appendChild(buildUserRow(u, root)));
+    } catch (err) {
+        list.innerHTML = `<div class="empty-state"><p>${escapeHtml((err as Error).message)}</p></div>`;
+    }
+}
+
+function buildUserRow(u: AdminUser, root: HTMLElement): HTMLElement {
+    const row = document.createElement("div");
+    row.className = "proj-row";
+    const isSelf = currentSession?.user === u.username;
+    row.innerHTML = `
+        <div class="thumb" style="display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted);font-size:18px">${escapeHtml(u.username.slice(0, 1).toUpperCase())}</div>
+        <div class="info">
+            <b>${escapeHtml(u.username)} ${isSelf ? '<span style="color:var(--muted);font-weight:400;font-size:11px;text-transform:uppercase;letter-spacing:.06em">tú</span>' : ""}</b>
+            <span>Creado ${new Date(u.createdAt).toLocaleDateString("es-ES")}</span>
+        </div>
+        <div class="meta">
+            <select data-role="${escapeHtml(u.username)}">
+                <option value="admin" ${u.role === "admin" ? "selected" : ""}>admin</option>
+                <option value="editor" ${u.role === "editor" ? "selected" : ""}>editor</option>
+            </select>
+        </div>
+        <div class="actions">
+            <button class="btn ghost sm" data-resetpass="${escapeHtml(u.username)}">Resetear pwd</button>
+            <button class="icon-btn danger" data-deluser="${escapeHtml(u.username)}" title="Eliminar" ${isSelf ? "disabled" : ""}>
+                <svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+        </div>
+    `;
+    row.querySelector(`[data-role="${u.username}"]`)?.addEventListener("change", async (e) => {
+        const newRole = (e.target as HTMLSelectElement).value;
+        const res = await fetch(`/api/admin/users/${encodeURIComponent(u.username)}`, {
+            method: "PATCH",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ role: newRole }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body.ok) {
+            alert(body.error || "Error al actualizar el rol.");
+            await loadAndRenderUsers(root);
+            return;
+        }
+        flashSaved();
+        await loadAndRenderUsers(root);
+    });
+    row.querySelector(`[data-resetpass="${u.username}"]`)?.addEventListener("click", () => openUserModal(u));
+    row.querySelector(`[data-deluser="${u.username}"]`)?.addEventListener("click", async (e) => {
+        if ((e.currentTarget as HTMLButtonElement).disabled) return;
+        if (!confirm(`¿Eliminar al usuario "${u.username}"?`)) return;
+        const res = await fetch(`/api/admin/users/${encodeURIComponent(u.username)}`, { method: "DELETE" });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body.ok) { alert(body.error || "Error al eliminar."); return; }
+        await loadAndRenderUsers(root);
+    });
+    return row;
+}
+
+function openUserModal(editing: AdminUser | null) {
+    const existing = document.getElementById("userModalBg");
+    if (existing) existing.remove();
+    const bg = document.createElement("div");
+    bg.id = "userModalBg";
+    bg.className = "drawer-bg open";
+    bg.innerHTML = `
+        <aside class="drawer open" role="dialog" aria-modal="true" style="max-width:480px">
+            <div class="drawer-head">
+                <h3>${editing ? "Resetear contraseña · " + escapeHtml(editing.username) : "Nuevo usuario"}</h3>
+                <button class="icon-btn" id="umClose" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+            <div class="drawer-body">
+                ${editing ? "" : `
+                <div class="field">
+                    <label>Usuario <i>3-32 chars, alfanumérico, _ o -</i></label>
+                    <input type="text" id="umUser" autocomplete="off" />
+                </div>
+                <div class="field">
+                    <label>Rol</label>
+                    <select id="umRole">
+                        <option value="editor">editor</option>
+                        <option value="admin">admin</option>
+                    </select>
+                </div>`}
+                <div class="field">
+                    <label>${editing ? "Nueva contraseña" : "Contraseña"} <i>mínimo 12 caracteres</i></label>
+                    <input type="password" id="umPass" autocomplete="new-password" />
+                </div>
+                <div class="login-error" id="umError" style="min-height:18px"></div>
+                ${editing ? '<p class="field-hint">Al resetear la contraseña, todas las sesiones de este usuario quedan invalidadas.</p>' : ""}
+            </div>
+            <div class="drawer-foot">
+                <div style="display:flex;gap:10px;margin-left:auto">
+                    <button class="btn ghost" id="umCancel">Cancelar</button>
+                    <button class="btn solid" id="umSave">${editing ? "Resetear" : "Crear usuario"}</button>
+                </div>
+            </div>
+        </aside>
+    `;
+    document.body.appendChild(bg);
+    const close = () => bg.remove();
+    bg.querySelector("#umClose")?.addEventListener("click", close);
+    bg.querySelector("#umCancel")?.addEventListener("click", close);
+    bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
+    bg.querySelector("#umSave")?.addEventListener("click", async () => {
+        const pass = ($("#umPass") as HTMLInputElement).value;
+        const err = $("#umError") as HTMLElement;
+        err.textContent = "";
+        if (pass.length < 12) { err.textContent = "La contraseña debe tener al menos 12 caracteres."; return; }
+        if (editing) {
+            const res = await fetch(`/api/admin/users/${encodeURIComponent(editing.username)}`, {
+                method: "PATCH",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ password: pass }),
+            });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok || !body.ok) { err.textContent = body.error || "Error al resetear."; return; }
+        } else {
+            const username = ($("#umUser") as HTMLInputElement).value.trim();
+            const role = ($("#umRole") as HTMLSelectElement).value;
+            if (!/^[a-zA-Z0-9_-]{3,32}$/.test(username)) { err.textContent = "Usuario inválido."; return; }
+            const res = await fetch("/api/admin/users", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ username, password: pass, role }),
+            });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok || !body.ok) { err.textContent = body.error || "Error al crear."; return; }
+        }
+        close();
+        const content = $("#content") as HTMLElement;
+        await loadAndRenderUsers(content);
+        flashSaved();
+    });
 }
 
 async function doLogout() {
@@ -977,8 +1220,25 @@ async function loadCmsFromServer(): Promise<void> {
     cms = (await res.json()) as CmsData;
 }
 
+async function loadSession(): Promise<void> {
+    try {
+        const res = await fetch("/api/session");
+        const body = (await res.json()) as { authed: boolean; user?: string; role?: UserRole };
+        currentSession = body.authed && body.user && body.role ? { user: body.user, role: body.role } : null;
+    } catch {
+        currentSession = null;
+    }
+}
+
+function applyRoleVisibility() {
+    const isAdmin = currentSession?.role === "admin";
+    $$<HTMLElement>(".side-link[data-route='usuarios']").forEach((l) => { l.hidden = !isAdmin; });
+}
+
 async function bootApp() {
+    await loadSession();
     await loadCmsFromServer();
+    applyRoleVisibility();
     $$<HTMLElement>(".side-link").forEach((l) =>
         l.addEventListener("click", () => navigate(l.dataset.route as Route)),
     );
@@ -1004,7 +1264,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Check session
     try {
         const res = await fetch("/api/session");
-        const body = (await res.json()) as { authed: boolean };
+        const body = (await res.json()) as { authed: boolean; user?: string; role?: UserRole };
         if (body.authed) {
             ($("#loginScreen") as HTMLElement).hidden = true;
             ($("#adminApp") as HTMLElement).hidden = false;

@@ -13,7 +13,7 @@ interface ListedBlob {
 }
 
 export const GET: APIRoute = async ({ cookies }) => {
-    if (!isAuthed(cookies)) return json({ ok: false, error: "No autorizado" }, 401);
+    if (!(await isAuthed(cookies))) return json({ ok: false, error: "No autorizado" }, 401);
     if (!HAS_BLOB) return json({ ok: false, error: "Vercel Blob no configurado." }, 501);
     try {
         const { list } = await import("@vercel/blob");
@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ cookies }) => {
 };
 
 export const DELETE: APIRoute = async ({ url, cookies }) => {
-    if (!isAuthed(cookies)) return json({ ok: false, error: "No autorizado" }, 401);
+    if (!(await isAuthed(cookies))) return json({ ok: false, error: "No autorizado" }, 401);
     if (!HAS_BLOB) return json({ ok: false, error: "Vercel Blob no configurado." }, 501);
     const target = url.searchParams.get("url");
     if (!target) return json({ ok: false, error: "Falta el parámetro url" }, 400);

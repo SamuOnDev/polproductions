@@ -6,7 +6,7 @@ export const prerender = false;
 const HAS_BLOB = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-    if (!isAuthed(cookies)) return json({ ok: false, error: "No autorizado" }, 401);
+    if (!(await isAuthed(cookies))) return json({ ok: false, error: "No autorizado" }, 401);
     if (!HAS_BLOB) {
         return json(
             {
