@@ -34,6 +34,24 @@ export const HOME_TEXT_GROUPS: HomeTextGroup[] = [
         ],
     },
     {
+        id: "stats",
+        title: "Estadísticas (hero)",
+        fields: [
+            { key: "stat_1_value", label: "Dato 1 · número" },
+            { key: "stat_1_unit", label: "Dato 1 · unidad" },
+            { key: "stat_1_label", label: "Dato 1 · etiqueta" },
+            { key: "stat_2_value", label: "Dato 2 · número" },
+            { key: "stat_2_unit", label: "Dato 2 · unidad" },
+            { key: "stat_2_label", label: "Dato 2 · etiqueta" },
+            { key: "stat_3_value", label: "Dato 3 · número" },
+            { key: "stat_3_unit", label: "Dato 3 · unidad" },
+            { key: "stat_3_label", label: "Dato 3 · etiqueta" },
+            { key: "stat_4_value", label: "Dato 4 · número" },
+            { key: "stat_4_unit", label: "Dato 4 · unidad" },
+            { key: "stat_4_label", label: "Dato 4 · etiqueta" },
+        ],
+    },
+    {
         id: "work",
         title: "Trabajo (horizontal)",
         fields: [

@@ -124,10 +124,10 @@ const base = `/${activeLang}`;
             </div>
 
             <div class="hero-stats reveal" style="transition-delay:.3s">
-                <div class="stat"><div class="n"><b>{t.stat_1_value}</b><sup>{t.stat_1_unit}</sup></div><div class="l">{t.stat_1_label}</div></div>
-                <div class="stat"><div class="n"><b>{t.stat_2_value}</b><sup>{t.stat_2_unit}</sup></div><div class="l">{t.stat_2_label}</div></div>
-                <div class="stat"><div class="n"><b>{t.stat_3_value}</b><sup>{t.stat_3_unit}</sup></div><div class="l">{t.stat_3_label}</div></div>
-                <div class="stat"><div class="n"><b>{t.stat_4_value}</b><sup>{t.stat_4_unit}</sup></div><div class="l">{t.stat_4_label}</div></div>
+                <div class="stat"><div class="n"><b data-cms-key={ek("stat_1_value")}>{text("stat_1_value")}</b><sup data-cms-key={ek("stat_1_unit")}>{text("stat_1_unit")}</sup></div><div class="l" data-cms-key={ek("stat_1_label")}>{text("stat_1_label")}</div></div>
+                <div class="stat"><div class="n"><b data-cms-key={ek("stat_2_value")}>{text("stat_2_value")}</b><sup data-cms-key={ek("stat_2_unit")}>{text("stat_2_unit")}</sup></div><div class="l" data-cms-key={ek("stat_2_label")}>{text("stat_2_label")}</div></div>
+                <div class="stat"><div class="n"><b data-cms-key={ek("stat_3_value")}>{text("stat_3_value")}</b><sup data-cms-key={ek("stat_3_unit")}>{text("stat_3_unit")}</sup></div><div class="l" data-cms-key={ek("stat_3_label")}>{text("stat_3_label")}</div></div>
+                <div class="stat"><div class="n"><b data-cms-key={ek("stat_4_value")}>{text("stat_4_value")}</b><sup data-cms-key={ek("stat_4_unit")}>{text("stat_4_unit")}</sup></div><div class="l" data-cms-key={ek("stat_4_label")}>{text("stat_4_label")}</div></div>
             </div>
         </div>
     </section>
