@@ -6,10 +6,11 @@
  * ===================================================== */
 import type { CmsData, Project, ProjectType, HorizontalSize } from "../lib/cms-types";
 import { HOME_TEXT_GROUPS, type HomeTextField } from "../lib/home-editable";
+import { LANGS, type ActiveLang } from "../i18n";
 import esDict from "../i18n/locales/es.json";
 import enDict from "../i18n/locales/en.json";
 
-type Route = "dashboard" | "home" | "proyectos" | "biblioteca" | "usuarios" | "ajustes";
+type Route = "editor" | "dashboard" | "home" | "proyectos" | "biblioteca" | "usuarios" | "ajustes";
 type UserRole = "admin" | "editor";
 interface CurrentSession { user: string; role: UserRole; }
 interface AdminUser { username: string; role: UserRole; createdAt: number; updatedAt: number; }
@@ -83,13 +84,57 @@ async function persist(): Promise<void> {
     flashSaved();
 }
 
+/**
+ * Downscale + re-encode an image in the browser before uploading. Vercel serverless
+ * functions reject request bodies over ~4.5 MB (HTTP 413), and full-resolution photos
+ * are far too heavy for the web anyway. We cap the longest side and export WebP. Falls
+ * back to the original file for SVGs, videos, or if the canvas pipeline is unavailable.
+ */
+async function prepareUpload(file: File): Promise<File> {
+    if (file.type === "image/svg+xml" || !file.type.startsWith("image/")) return file;
+    const MAX_DIM = 2200;
+    const MAX_KEEP_BYTES = 3.5 * 1024 * 1024;
+    try {
+        const bitmap = await createImageBitmap(file);
+        const longest = Math.max(bitmap.width, bitmap.height);
+        const scale = Math.min(1, MAX_DIM / longest);
+        if (scale === 1 && file.size <= MAX_KEEP_BYTES) {
+            bitmap.close?.();
+            return file;
+        }
+        const w = Math.round(bitmap.width * scale);
+        const h = Math.round(bitmap.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            bitmap.close?.();
+            return file;
+        }
+        ctx.drawImage(bitmap, 0, 0, w, h);
+        bitmap.close?.();
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.85));
+        if (!blob) return file;
+        const base = file.name.replace(/\.[^.]+$/, "") || "image";
+        return new File([blob], `${base}.webp`, { type: "image/webp" });
+    } catch {
+        return file;
+    }
+}
+
 async function uploadFile(file: File): Promise<string | null> {
+    const prepared = await prepareUpload(file);
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", prepared);
     const res = await fetch("/api/upload", { method: "POST", body: form });
+    if (res.status === 413) {
+        alert("La imagen es demasiado grande. Prueba con una más ligera.");
+        return null;
+    }
     const body = await res.json().catch(() => ({}));
     if (!res.ok || !body.ok) {
-        alert(body.error || "Error al subir la imagen");
+        alert(body.error || `Error al subir la imagen (HTTP ${res.status})`);
         return null;
     }
     return body.url as string;
@@ -125,6 +170,7 @@ function mountLogin() {
 
 /* ── ROUTING ──────────────────────────────────────────── */
 const ROUTES: Record<Route, { title: string; render: (root: HTMLElement) => void; requiresAdmin?: boolean }> = {
+    editor: { title: "Editar web", render: renderEditor },
     dashboard: { title: "Resumen", render: renderDashboard },
     home: { title: "Home", render: renderHome },
     proyectos: { title: "Proyectos", render: renderProyectos },
@@ -143,6 +189,302 @@ function navigate(route: Route) {
     const content = $("#content") as HTMLElement;
     content.innerHTML = "";
     ROUTES[route].render(content);
+}
+
+/* ── EDITOR VISUAL (clic-para-editar sobre la web real) ──
+ * Renders the live site in an iframe (with ?cmsedit=1) and lets the owner click any
+ * element marked with data-cms-key / data-cms-slot to edit it in context. Text overrides
+ * go to cms.text[lang][key]; image slots are mapped to where the Home reads them. */
+let editorLang: ActiveLang = LANGS[0];
+let editorPath = "/";
+
+const EDITOR_PAGES: Array<{ label: string; path: string }> = [
+    { label: "Home", path: "/" },
+];
+
+const TEXT_LABELS: Record<string, string> = (() => {
+    const m: Record<string, string> = {};
+    for (const g of HOME_TEXT_GROUPS) for (const f of g.fields) m[f.key] = f.label;
+    return m;
+})();
+
+interface EditorImageSlot {
+    label: string;
+    get: () => string;
+    set: (v: string) => void;
+}
+
+/** Map a data-cms-slot name to where the public Home actually reads/writes that image. */
+function slotAccessor(slot: string): EditorImageSlot {
+    if (slot === "hero.showreel") {
+        return {
+            label: "Imagen del reel (poster)",
+            get: () => cms.media.heroShowreelImage || "",
+            set: (v) => {
+                cms.media.heroShowreelImage = v;
+            },
+        };
+    }
+    if (slot === "about.portrait") {
+        return {
+            label: "Retrato · Sobre mí",
+            get: () => cms.media.aboutPortraitImage || "",
+            set: (v) => {
+                cms.media.aboutPortraitImage = v;
+            },
+        };
+    }
+    return {
+        label: slot,
+        get: () => cms.images[slot] ?? "",
+        set: (v) => {
+            if (v) cms.images[slot] = v;
+            else delete cms.images[slot];
+        },
+    };
+}
+
+function editorIframeSrc(): string {
+    const base = editorPath === "/" ? `/${editorLang}/` : `/${editorLang}${editorPath}`;
+    return `${base}?cmsedit=1`;
+}
+
+function renderEditor(root: HTMLElement) {
+    const langTabs = LANGS.map(
+        (l) => `<button class="tab ${editorLang === l ? "active" : ""}" data-elang="${l}">${l.toUpperCase()}</button>`,
+    ).join("");
+    const pageTabs = EDITOR_PAGES.map(
+        (p) => `<button class="ed-page ${editorPath === p.path ? "active" : ""}" data-epath="${escapeHtml(p.path)}">${escapeHtml(p.label)}</button>`,
+    ).join("");
+    root.innerHTML = `
+        <div class="editor-bar">
+            <div class="ed-pages">${pageTabs}</div>
+            <div class="ed-right">
+                <span class="ed-hint">Haz clic en cualquier texto o imagen de la web para editarlo.</span>
+                ${LANGS.length > 1 ? `<div class="tabs">${langTabs}</div>` : ""}
+            </div>
+        </div>
+        <div class="editor-frame-wrap">
+            <iframe id="editorFrame" class="editor-frame" src="${editorIframeSrc()}"></iframe>
+        </div>
+    `;
+    root.querySelectorAll<HTMLElement>(".ed-page[data-epath]").forEach((b) =>
+        b.addEventListener("click", () => {
+            editorPath = b.dataset.epath as string;
+            navigate("editor");
+        }),
+    );
+    root.querySelectorAll<HTMLElement>(".tab[data-elang]").forEach((b) =>
+        b.addEventListener("click", () => {
+            editorLang = b.dataset.elang as ActiveLang;
+            navigate("editor");
+        }),
+    );
+    const frame = root.querySelector("#editorFrame") as HTMLIFrameElement;
+    frame.addEventListener("load", () => attachEditorOverlay(frame));
+}
+
+function attachEditorOverlay(frame: HTMLIFrameElement) {
+    const doc = frame.contentDocument;
+    if (!doc) return;
+    if (!doc.getElementById("cms-ed-style")) {
+        const st = doc.createElement("style");
+        st.id = "cms-ed-style";
+        st.textContent =
+            "[data-cms-key],[data-cms-slot]{outline:1px dashed rgba(195,243,92,.55);outline-offset:2px;cursor:pointer;transition:outline-color .15s,background .15s;}" +
+            "[data-cms-key]:hover,[data-cms-slot]:hover{outline:2px solid #C3F35C;background:rgba(195,243,92,.12);}";
+        doc.head.appendChild(st);
+    }
+    doc.addEventListener(
+        "click",
+        (e) => {
+            const target = e.target as HTMLElement | null;
+            if (!target) return;
+            const textEl = target.closest("[data-cms-key]") as HTMLElement | null;
+            if (textEl) {
+                e.preventDefault();
+                e.stopPropagation();
+                openTextEditor(textEl.dataset.cmsKey as string);
+                return;
+            }
+            const imgEl = target.closest("[data-cms-slot]") as HTMLElement | null;
+            if (imgEl) {
+                e.preventDefault();
+                e.stopPropagation();
+                openImageEditor(imgEl.dataset.cmsSlot as string);
+                return;
+            }
+            // Keep edit mode while navigating between pages of the same site.
+            const link = target.closest("a[href]") as HTMLAnchorElement | null;
+            if (link) {
+                const href = link.getAttribute("href") || "";
+                if (href.startsWith("/") && !href.startsWith("//")) {
+                    e.preventDefault();
+                    const sep = href.includes("?") ? "&" : "?";
+                    frame.src = `${href}${sep}cmsedit=1`;
+                }
+            }
+        },
+        true,
+    );
+    doc.addEventListener("submit", (e) => e.preventDefault(), true);
+}
+
+function reloadEditorFrame() {
+    const frame = document.getElementById("editorFrame") as HTMLIFrameElement | null;
+    if (frame) frame.src = editorIframeSrc();
+}
+
+function closeEditorModal() {
+    document.getElementById("cmsEditorModal")?.remove();
+}
+
+function openTextEditor(key: string) {
+    closeEditorModal();
+    let lang: ActiveLang = editorLang;
+    const label = TEXT_LABELS[key] ?? key;
+    const modal = document.createElement("div");
+    modal.id = "cmsEditorModal";
+    modal.className = "cms-modal";
+
+    const render = () => {
+        const value = (cms.text[lang] ?? {})[key] ?? "";
+        const fb = (fallbackText[lang] ?? {})[key] ?? "";
+        const langTabs = LANGS.map(
+            (l) => `<button class="tab ${l === lang ? "active" : ""}" data-mlang="${l}">${l.toUpperCase()}</button>`,
+        ).join("");
+        modal.innerHTML = `
+            <div class="cms-modal-card">
+                <div class="cms-modal-head">
+                    <div><b>${escapeHtml(label)}</b><span class="mono">${escapeHtml(key)}</span></div>
+                    <button class="cms-x" data-close>✕</button>
+                </div>
+                ${LANGS.length > 1 ? `<div class="tabs">${langTabs}</div>` : ""}
+                <textarea class="cms-ta" placeholder="${escapeHtml(fb ? "Por defecto: " + fb : "")}">${escapeHtml(value)}</textarea>
+                <div class="cms-modal-foot">
+                    <button class="btn ghost" data-restore>Restaurar original</button>
+                    <span style="flex:1"></span>
+                    <button class="btn ghost" data-close>Cancelar</button>
+                    <button class="btn solid" data-save>Guardar</button>
+                </div>
+            </div>
+        `;
+        modal.querySelectorAll<HTMLElement>("[data-mlang]").forEach((b) =>
+            b.addEventListener("click", () => {
+                lang = b.dataset.mlang as ActiveLang;
+                render();
+            }),
+        );
+        modal.querySelectorAll<HTMLElement>("[data-close]").forEach((b) => b.addEventListener("click", closeEditorModal));
+        const ta = modal.querySelector(".cms-ta") as HTMLTextAreaElement;
+        (modal.querySelector("[data-save]") as HTMLElement).addEventListener("click", async () => {
+            const v = ta.value;
+            if (!cms.text[lang]) cms.text[lang] = {};
+            if (v.trim() === "") delete cms.text[lang][key];
+            else cms.text[lang][key] = v;
+            await persist();
+            closeEditorModal();
+            reloadEditorFrame();
+        });
+        (modal.querySelector("[data-restore]") as HTMLElement).addEventListener("click", async () => {
+            if (cms.text[lang]) delete cms.text[lang][key];
+            await persist();
+            closeEditorModal();
+            reloadEditorFrame();
+        });
+    };
+
+    render();
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeEditorModal();
+    });
+    document.body.appendChild(modal);
+}
+
+function openImageEditor(slot: string) {
+    closeEditorModal();
+    const accessor = slotAccessor(slot);
+    const current = accessor.get();
+    const modal = document.createElement("div");
+    modal.id = "cmsEditorModal";
+    modal.className = "cms-modal";
+    modal.innerHTML = `
+        <div class="cms-modal-card">
+            <div class="cms-modal-head">
+                <div><b>${escapeHtml(accessor.label)}</b><span class="mono">${escapeHtml(slot)}</span></div>
+                <button class="cms-x" data-close>✕</button>
+            </div>
+            <div class="cms-img-preview">${current ? `<img src="${escapeHtml(current)}" alt="">` : "Sin imagen"}</div>
+            <label class="file-btn cms-upload">📷 Subir nueva imagen<input type="file" accept="image/*" id="cmsImgFile" hidden></label>
+            <input type="text" class="cms-url" placeholder="o pega una URL (/...)" value="${escapeHtml(current)}">
+            <p class="cms-lib-title mono">Biblioteca</p>
+            <div class="cms-lib" id="cmsLib"><div class="empty-state"><p>Cargando…</p></div></div>
+            <div class="cms-modal-foot">
+                <button class="btn ghost" data-restore>Restaurar original</button>
+                <span style="flex:1"></span>
+                <button class="btn ghost" data-close>Cancelar</button>
+                <button class="btn solid" data-save>Guardar</button>
+            </div>
+        </div>
+    `;
+    const urlInput = modal.querySelector(".cms-url") as HTMLInputElement;
+    const preview = modal.querySelector(".cms-img-preview") as HTMLElement;
+    const setUrl = (u: string) => {
+        urlInput.value = u;
+        preview.innerHTML = u ? `<img src="${escapeHtml(u)}" alt="">` : "Sin imagen";
+    };
+    modal.querySelectorAll<HTMLElement>("[data-close]").forEach((b) => b.addEventListener("click", closeEditorModal));
+    (modal.querySelector("#cmsImgFile") as HTMLInputElement).addEventListener("change", async (e) => {
+        const f = (e.target as HTMLInputElement).files?.[0];
+        if (!f) return;
+        const uploaded = await uploadFile(f);
+        if (uploaded) setUrl(uploaded);
+    });
+    urlInput.addEventListener("input", () => setUrl(urlInput.value));
+    (modal.querySelector("[data-save]") as HTMLElement).addEventListener("click", async () => {
+        accessor.set(urlInput.value.trim());
+        await persist();
+        closeEditorModal();
+        reloadEditorFrame();
+    });
+    (modal.querySelector("[data-restore]") as HTMLElement).addEventListener("click", async () => {
+        accessor.set("");
+        await persist();
+        closeEditorModal();
+        reloadEditorFrame();
+    });
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeEditorModal();
+    });
+    document.body.appendChild(modal);
+    loadEditorLibrary(modal, setUrl);
+}
+
+async function loadEditorLibrary(modal: HTMLElement, pick: (u: string) => void) {
+    const lib = modal.querySelector("#cmsLib") as HTMLElement;
+    try {
+        const res = await fetch("/api/blobs");
+        const body = (await res.json()) as { ok: boolean; blobs?: Array<{ url: string; pathname: string }>; error?: string };
+        if (!res.ok || !body.ok) {
+            lib.innerHTML = `<div class="empty-state"><p>${escapeHtml(body.error || "Biblioteca no disponible.")}</p></div>`;
+            return;
+        }
+        const blobs = body.blobs ?? [];
+        if (!blobs.length) {
+            lib.innerHTML = `<div class="empty-state"><p>Aún no hay imágenes subidas.</p></div>`;
+            return;
+        }
+        lib.innerHTML = "";
+        blobs.forEach((b) => {
+            const item = document.createElement("button");
+            item.className = "cms-lib-item";
+            item.innerHTML = `<img src="${escapeHtml(b.url)}" alt="">`;
+            item.addEventListener("click", () => pick(b.url));
+            lib.appendChild(item);
+        });
+    } catch {
+        lib.innerHTML = `<div class="empty-state"><p>Biblioteca no disponible.</p></div>`;
+    }
 }
 
 /* ── DASHBOARD ────────────────────────────────────────── */

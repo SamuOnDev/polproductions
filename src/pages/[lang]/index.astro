@@ -2,6 +2,7 @@
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
 import { loadCms } from "../../lib/cms-store";
+import { isEditMode } from "../../lib/edit-mode";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export const prerender = false;
@@ -13,6 +14,8 @@ if (!lang || !LANGS.includes(lang as ActiveLang)) {
 const activeLang = lang as ActiveLang;
 const t = await getDict(activeLang);
 const cms = await loadCms();
+const editMode = await isEditMode(Astro.cookies, Astro.url);
+const ek = (k: string): string | undefined => (editMode ? k : undefined);
 
 const horizontal = cms.projects
     .filter((p) => p.type === "horizontal" && p.showOnHome !== false)
@@ -71,19 +74,19 @@ const pageDesc = String(t.hero_role_desc || "");
 const base = `/${activeLang}`;
 ---
 
-<BaseLayout activeLang={activeLang} t={t} title={pageTitle} description={pageDesc} activeNav="home">
+<BaseLayout activeLang={activeLang} t={t} title={pageTitle} description={pageDesc} activeNav="home" editMode={editMode}>
     <!-- HERO -->
     <section class="hero" id="top">
         <div class="container">
             <div class="hero-top reveal">
                 <h1>
-                    {text("hero_title_1")}<br />
-                    {text("hero_title_2")} <b>{text("hero_title_3")}</b><br />
-                    {text("hero_title_4")} <span class="accent">{text("hero_title_accent")}</span>.
+                    <span data-cms-key={ek("hero_title_1")}>{text("hero_title_1")}</span><br />
+                    <span data-cms-key={ek("hero_title_2")}>{text("hero_title_2")}</span> <b data-cms-key={ek("hero_title_3")}>{text("hero_title_3")}</b><br />
+                    <span data-cms-key={ek("hero_title_4")}>{text("hero_title_4")}</span> <span class="accent" data-cms-key={ek("hero_title_accent")}>{text("hero_title_accent")}</span>.
                 </h1>
                 <div class="hero-meta">
                     <span class="mono">{t.hero_role_label}</span>
-                    <p class="role" set:html={text("hero_role_desc")} />
+                    <p class="role" set:html={text("hero_role_desc")} data-cms-key={ek("hero_role_desc")} />
                     <div class="hero-actions">
                         <a class="btn solid" href="#work">{t.hero_cta_work} <span class="arr">→</span></a>
                         <a class="btn ghost" href="#contact">{t.hero_cta_contact}</a>
@@ -101,7 +104,7 @@ const base = `/${activeLang}`;
                 )}
                 {showreelYtId ? (
                     <div class="sr-video" data-yt-showreel={showreelYtId}>
-                        <img src={heroImage} alt="Showreel cover" />
+                        <img src={heroImage} alt="Showreel cover" data-cms-slot={ek("hero.showreel")} />
                     </div>
                 ) : showreelIsMp4 ? (
                     <video
@@ -112,13 +115,14 @@ const base = `/${activeLang}`;
                         muted
                         loop
                         playsinline
+                        data-cms-slot={ek("hero.showreel")}
                     ></video>
                 ) : (
-                    <img src={heroImage} alt="Showreel cover" />
+                    <img src={heroImage} alt="Showreel cover" data-cms-slot={ek("hero.showreel")} />
                 )}
                 <div class="sr-meta">
-                    <div class="title">{text("hero_showreel_title")} <small>{text("hero_showreel_specs")}</small></div>
-                    <div class="info"><b>{text("hero_showreel_pieces")}</b><br />{text("hero_showreel_roles")}<br />{text("hero_showreel_location")}</div>
+                    <div class="title"><span data-cms-key={ek("hero_showreel_title")}>{text("hero_showreel_title")}</span> <small data-cms-key={ek("hero_showreel_specs")}>{text("hero_showreel_specs")}</small></div>
+                    <div class="info"><b data-cms-key={ek("hero_showreel_pieces")}>{text("hero_showreel_pieces")}</b><br /><span data-cms-key={ek("hero_showreel_roles")}>{text("hero_showreel_roles")}</span><br /><span data-cms-key={ek("hero_showreel_location")}>{text("hero_showreel_location")}</span></div>
                 </div>
             </div>
 
@@ -147,8 +151,8 @@ const base = `/${activeLang}`;
         <div class="container">
             <div class="s-head reveal">
                 <span class="num">{t.work_num}</span>
-                <h2 set:html={text("work_title")} />
-                <span class="aside"><b>{text("work_aside_title")}</b>{text("work_aside_desc")}</span>
+                <h2 set:html={text("work_title")} data-cms-key={ek("work_title")} />
+                <span class="aside"><b data-cms-key={ek("work_aside_title")}>{text("work_aside_title")}</b><span data-cms-key={ek("work_aside_desc")}>{text("work_aside_desc")}</span></span>
             </div>
 
             <div class="work-filters reveal">
@@ -187,7 +191,7 @@ const base = `/${activeLang}`;
             </div>
 
             <div class="work-more reveal">
-                <a class="btn ghost" href={`${base}/portfolio`}>{text("work_more")} <span class="arr">→</span></a>
+                <a class="btn ghost" href={`${base}/portfolio`}><span data-cms-key={ek("work_more")}>{text("work_more")}</span> <span class="arr">→</span></a>
             </div>
         </div>
     </section>
@@ -197,8 +201,8 @@ const base = `/${activeLang}`;
         <div class="container">
             <div class="s-head reveal">
                 <span class="num">{t.vertical_num}</span>
-                <h2 set:html={text("vertical_title")} />
-                <span class="aside"><b>{text("vertical_aside_title")}</b>{text("vertical_aside_desc")}</span>
+                <h2 set:html={text("vertical_title")} data-cms-key={ek("vertical_title")} />
+                <span class="aside"><b data-cms-key={ek("vertical_aside_title")}>{text("vertical_aside_title")}</b><span data-cms-key={ek("vertical_aside_desc")}>{text("vertical_aside_desc")}</span></span>
             </div>
 
             <div class="v-grid">
@@ -239,17 +243,17 @@ const base = `/${activeLang}`;
             <div class="process-wrap">
                 <div class="process-aside reveal">
                     <span class="num mono">{t.process_num}</span>
-                    <h3 style="margin-top:14px" set:html={text("process_title")} />
-                    <p>{text("process_desc")}</p>
-                    <span class="badge">{text("process_badge")}</span>
+                    <h3 style="margin-top:14px" set:html={text("process_title")} data-cms-key={ek("process_title")} />
+                    <p data-cms-key={ek("process_desc")}>{text("process_desc")}</p>
+                    <span class="badge" data-cms-key={ek("process_badge")}>{text("process_badge")}</span>
                 </div>
                 <div class="steps">
                     {processSteps.map((step, i) => (
                         <div class="step reveal" style={i > 0 ? `transition-delay:${i * 0.06}s` : undefined}>
                             <span class="n">{step.num}</span>
                             <div>
-                                <h4>{text(step.titleKey)}</h4>
-                                <p>{text(step.descKey)}</p>
+                                <h4 data-cms-key={ek(step.titleKey)}>{text(step.titleKey)}</h4>
+                                <p data-cms-key={ek(step.descKey)}>{text(step.descKey)}</p>
                             </div>
                             <span class="when">{t[step.timeKey]}</span>
                         </div>
@@ -264,15 +268,15 @@ const base = `/${activeLang}`;
         <div class="container">
             <div class="about">
                 <div class="about-portrait reveal">
-                    <img src={aboutImage} alt={String(t.about_portrait_alt)} />
-                    <span class="name-tag"><b>{text("about_portrait_tag")}</b> · {text("about_portrait_role")}</span>
+                    <img src={aboutImage} alt={String(t.about_portrait_alt)} data-cms-slot={ek("about.portrait")} />
+                    <span class="name-tag"><b data-cms-key={ek("about_portrait_tag")}>{text("about_portrait_tag")}</b> · <span data-cms-key={ek("about_portrait_role")}>{text("about_portrait_role")}</span></span>
                 </div>
                 <div class="about-copy reveal" style="transition-delay:.1s">
                     <span class="mono" style="display:block;margin-bottom:18px">{t.about_num}</span>
-                    <h2 set:html={text("about_title")} />
-                    <p class="lead">{text("about_lead")}</p>
-                    <p>{text("about_p1")}</p>
-                    <p>{text("about_p2")}</p>
+                    <h2 set:html={text("about_title")} data-cms-key={ek("about_title")} />
+                    <p class="lead" data-cms-key={ek("about_lead")}>{text("about_lead")}</p>
+                    <p data-cms-key={ek("about_p1")}>{text("about_p1")}</p>
+                    <p data-cms-key={ek("about_p2")}>{text("about_p2")}</p>
                     <div class="facts">
                         <div class="fact"><span>{t.about_fact_1_label}</span><b>{t.about_fact_1_value}</b></div>
                         <div class="fact"><span>{t.about_fact_2_label}</span><b>{t.about_fact_2_value}</b></div>
@@ -290,8 +294,8 @@ const base = `/${activeLang}`;
             <div class="contact">
                 <div class="contact-intro reveal">
                     <span class="mono" style="display:block;margin-bottom:18px">{t.contact_num}</span>
-                    <h2 set:html={text("contact_title")} />
-                    <p>{text("contact_desc")}</p>
+                    <h2 set:html={text("contact_title")} data-cms-key={ek("contact_title")} />
+                    <p data-cms-key={ek("contact_desc")}>{text("contact_desc")}</p>
 
                     <div class="contact-channels">
                         <a class="channel" href={`mailto:${t.contact_email}`}>
@@ -313,8 +317,8 @@ const base = `/${activeLang}`;
                 </div>
 
                 <form class="form-card reveal" style="transition-delay:.1s" id="contact-form">
-                    <h3>{text("contact_form_title")}</h3>
-                    <p class="lead-line">{text("contact_form_lead")}</p>
+                    <h3 data-cms-key={ek("contact_form_title")}>{text("contact_form_title")}</h3>
+                    <p class="lead-line" data-cms-key={ek("contact_form_lead")}>{text("contact_form_lead")}</p>
                     <div class="form-grid">
                         <div class="row2">
                             <div class="field">

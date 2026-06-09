@@ -1,33 +1,44 @@
 import type { APIRoute } from "astro";
 import { isAuthed } from "../../lib/session";
+import { blobToken } from "../../lib/blob";
 
 export const prerender = false;
 
-const HAS_BLOB = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-
 export const POST: APIRoute = async ({ request, cookies }) => {
     if (!(await isAuthed(cookies))) return json({ ok: false, error: "No autorizado" }, 401);
-    if (!HAS_BLOB) {
+    const token = blobToken();
+    if (!token) {
         return json(
             {
                 ok: false,
                 error:
-                    "Vercel Blob no configurado. Define BLOB_READ_WRITE_TOKEN en .env / Vercel para activar la subida.",
+                    "Vercel Blob no configurado. Conecta un Blob store PÚBLICO y define BLOB_READ_WRITE_TOKEN.",
             },
             501,
         );
     }
-    const form = await request.formData();
-    const file = form.get("file");
+    let file: FormDataEntryValue | null;
+    try {
+        const form = await request.formData();
+        file = form.get("file");
+    } catch (err) {
+        return json({ ok: false, error: "No se pudo leer el archivo: " + (err as Error).message }, 400);
+    }
     if (!(file instanceof File)) return json({ ok: false, error: "Archivo ausente" }, 400);
     const safeName = sanitize(file.name) || `upload-${Date.now()}`;
-    const { put } = await import("@vercel/blob");
-    const blob = await put(`cms/${Date.now()}-${safeName}`, file, {
-        access: "public",
-        contentType: file.type || undefined,
-        addRandomSuffix: false,
-    });
-    return json({ ok: true, url: blob.url });
+    try {
+        const { put } = await import("@vercel/blob");
+        const blob = await put(`cms/${Date.now()}-${safeName}`, file, {
+            access: "public",
+            contentType: file.type || undefined,
+            addRandomSuffix: false,
+            token,
+        });
+        return json({ ok: true, url: blob.url });
+    } catch (err) {
+        // Surface the real reason (private store / auth / network) instead of an opaque 500.
+        return json({ ok: false, error: "Blob: " + ((err as Error).message || String(err)) }, 500);
+    }
 };
 
 function sanitize(name: string): string {

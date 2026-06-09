@@ -14,9 +14,11 @@ interface Props {
     canonical?: string;
     ogImage?: string;
     activeNav?: "home" | "portfolio";
+    /** Hide the public chrome (Admin FAB) when rendering inside the editor iframe. */
+    editMode?: boolean;
 }
 
-const { activeLang, t, title, description = "", canonical, ogImage, activeNav = "home" } = Astro.props;
+const { activeLang, t, title, description = "", canonical, ogImage, activeNav = "home", editMode = false } = Astro.props;
 const siteUrl = Astro.site ? Astro.site.origin : "https://polsanchezbaena.com";
 const currentUrl = canonical ?? `${siteUrl}${Astro.url.pathname}`;
 const ogImg = ogImage ?? `${siteUrl}/images/hero-showreel-cover.jpg`;
@@ -51,7 +53,7 @@ const descStripped = description.replace(/<[^>]*>/g, "");
         <slot />
     </main>
     <Footer activeLang={activeLang} t={t} />
-    <AdminFab t={t} />
+    {!editMode && <AdminFab t={t} />}
     <script is:inline>
         document.documentElement.classList.add('js');
         (function () {
