@@ -4,13 +4,13 @@
  * (/api/cms, /api/upload, /api/login, /api/logout) instead
  * of localStorage.
  * ===================================================== */
-import type { CmsData, Project, ProjectType, HorizontalSize } from "../lib/cms-types";
+import type { CmsData, Client, Project, ProjectType, HorizontalSize } from "../lib/cms-types";
 import { HOME_TEXT_GROUPS, type HomeTextField } from "../lib/home-editable";
 import { LANGS, type ActiveLang } from "../i18n";
 import esDict from "../i18n/locales/es.json";
 import enDict from "../i18n/locales/en.json";
 
-type Route = "editor" | "dashboard" | "home" | "proyectos" | "biblioteca" | "usuarios" | "ajustes";
+type Route = "editor" | "dashboard" | "home" | "proyectos" | "biblioteca" | "clientes" | "usuarios" | "ajustes";
 type UserRole = "admin" | "editor";
 interface CurrentSession { user: string; role: UserRole; }
 interface AdminUser { username: string; role: UserRole; createdAt: number; updatedAt: number; }
@@ -25,6 +25,7 @@ let cms: CmsData = {
     media: { heroShowreelImage: "", heroShowreelVideoUrl: "", aboutPortraitImage: "" },
     text: { es: {}, en: {} },
     projects: [],
+    clients: [],
 };
 let currentRoute: Route = "dashboard";
 let projectFilter: "horizontal" | "vertical" | "all" = "horizontal";
@@ -175,6 +176,7 @@ const ROUTES: Record<Route, { title: string; render: (root: HTMLElement) => void
     home: { title: "Home", render: renderHome },
     proyectos: { title: "Proyectos", render: renderProyectos },
     biblioteca: { title: "Biblioteca", render: renderBiblioteca },
+    clientes: { title: "Clientes", render: renderClientes },
     usuarios: { title: "Usuarios", render: renderUsuarios, requiresAdmin: true },
     ajustes: { title: "Ajustes", render: renderAjustes },
 };
@@ -1261,6 +1263,86 @@ async function loadAndRenderLibrary(root: HTMLElement) {
     }
 }
 
+/* ── CLIENTES ─────────────────────────────────────────── */
+function renderClientes(root: HTMLElement) {
+    root.innerHTML = `
+        <div class="proj-head">
+            <h3 style="margin:0">Clientes y colaboradores <small>logos del carrusel de la home</small></h3>
+            <button class="btn solid" id="newClient">+ Nuevo cliente</button>
+        </div>
+        <div class="section-card">
+            <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Cada cliente aparece en el carrusel de la home. Si subes un logo se muestra el logo; si no, el nombre. La URL (opcional) hace el logo clicable.</p>
+            <div id="clientList"></div>
+        </div>
+    `;
+    root.querySelector("#newClient")?.addEventListener("click", async () => {
+        cms.clients.push({ id: uid(), name: "Nuevo cliente", url: "", logo: "" });
+        await persist();
+        navigate("clientes");
+    });
+    const list = root.querySelector("#clientList") as HTMLElement;
+    if (!cms.clients.length) {
+        list.innerHTML = '<div class="empty-state"><p>Aún no hay clientes. Añade el primero para que aparezca en el carrusel.</p></div>';
+        return;
+    }
+    cms.clients.forEach((c) => list.appendChild(buildClientRow(c)));
+}
+
+function buildClientRow(c: Client): HTMLElement {
+    const row = document.createElement("div");
+    row.className = "client-row";
+    const fileId = "cl-" + Math.random().toString(36).slice(2, 8);
+    row.innerHTML = `
+        <div class="client-logo">
+            <div class="preview">${c.logo ? `<img src="${escapeHtml(c.logo)}" alt="">` : "Sin logo"}</div>
+            <input type="file" accept="image/*" id="${fileId}" hidden />
+            <label for="${fileId}" class="file-btn">📷 Subir logo</label>
+        </div>
+        <div class="client-fields">
+            <input type="text" data-k="name" value="${escapeHtml(c.name)}" placeholder="Nombre de la empresa" />
+            <input type="url" data-k="url" value="${escapeHtml(c.url ?? "")}" placeholder="https://… (opcional)" />
+            <input type="text" data-k="logo" value="${escapeHtml(c.logo ?? "")}" placeholder="o pega una URL de logo (/images/…)" />
+        </div>
+        <button class="icon-btn danger" data-del title="Eliminar">
+            <svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+    `;
+    const preview = row.querySelector(".preview") as HTMLElement;
+    const fileInput = row.querySelector(`#${fileId}`) as HTMLInputElement;
+    const logoInput = row.querySelector('[data-k="logo"]') as HTMLInputElement;
+    fileInput.addEventListener("change", async () => {
+        const f = fileInput.files?.[0];
+        if (!f) return;
+        const localUrl = await fileToDataUrl(f);
+        preview.innerHTML = `<img src="${localUrl}" alt="">`;
+        const uploaded = await uploadFile(f);
+        const finalUrl = uploaded ?? localUrl;
+        logoInput.value = finalUrl;
+        preview.innerHTML = `<img src="${escapeHtml(finalUrl)}" alt="">`;
+        c.logo = finalUrl;
+        await persist();
+    });
+    row.querySelectorAll<HTMLInputElement>("[data-k]").forEach((el) => {
+        el.addEventListener("change", async () => {
+            const k = el.dataset.k as string;
+            if (k === "name") c.name = el.value;
+            else if (k === "url") c.url = el.value;
+            else if (k === "logo") {
+                c.logo = el.value;
+                preview.innerHTML = el.value ? `<img src="${escapeHtml(el.value)}" alt="">` : "Sin logo";
+            }
+            await persist();
+        });
+    });
+    row.querySelector("[data-del]")?.addEventListener("click", async () => {
+        if (!confirm(`¿Eliminar "${c.name}"?`)) return;
+        cms.clients = cms.clients.filter((x) => x.id !== c.id);
+        await persist();
+        navigate("clientes");
+    });
+    return row;
+}
+
 /* ── AJUSTES ──────────────────────────────────────────── */
 function renderAjustes(root: HTMLElement) {
     const sess = currentSession;
@@ -1565,6 +1647,7 @@ async function loadCmsFromServer(): Promise<void> {
     const res = await fetch("/api/cms");
     if (!res.ok) throw new Error("No se pudo cargar el CMS");
     cms = (await res.json()) as CmsData;
+    if (!Array.isArray(cms.clients)) cms.clients = [];
 }
 
 async function loadSession(): Promise<void> {

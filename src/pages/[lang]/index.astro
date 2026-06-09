@@ -45,10 +45,7 @@ const processSteps = [
     { num: "04", titleKey: "process_step_4_title", descKey: "process_step_4_desc", timeKey: "process_step_4_time" },
 ];
 
-const logoNames = [
-    "Lume <i>Records</i>", "Northbeat", "Atlas <i>Studio</i>", "Vertigo",
-    "Casa Mar", "Ediciones <i>Norte</i>", "Pulse Mag", "Halcón <i>Audio</i>",
-];
+const clients = cms.clients ?? [];
 
 const projectOptions = (t.form_project_options as unknown as string[]) || [];
 const budgetOptions = (t.form_budget_options as unknown as string[]) || [];
@@ -136,15 +133,28 @@ const base = `/${activeLang}`;
     </section>
 
     <!-- LOGOS -->
-    <div class="logos">
-        <div class="logos-inner">
-            <span class="logos-label">{t.logos_label}</span>
-            <div class="logos-track">
-                {logoNames.map((name) => <span set:html={name} />)}
-                {logoNames.map((name) => <span set:html={name} />)}
+    {clients.length > 0 && (
+        <div class="logos">
+            <div class="logos-inner">
+                <span class="logos-label" data-cms-key={ek("logos_label")}>{text("logos_label")}</span>
+                <div class="logos-viewport">
+                    <div class="logos-track">
+                        {[...clients, ...clients].map((c) => (
+                            <a
+                                class="logo-item"
+                                href={c.url || undefined}
+                                target={c.url ? "_blank" : undefined}
+                                rel={c.url ? "noopener noreferrer" : undefined}
+                                aria-label={c.name}
+                            >
+                                {c.logo ? <img src={c.logo} alt={c.name} /> : <span>{c.name}</span>}
+                            </a>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    )}
 
     <!-- WORK -->
     <section id="work">

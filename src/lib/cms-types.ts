@@ -30,6 +30,14 @@ export interface HomeMedia {
     aboutPortraitImage?: string;
 }
 
+/** A client / collaborator shown in the home logo carousel. */
+export interface Client {
+    id: string;
+    name: string;
+    url?: string;
+    logo?: string;
+}
+
 export type LocaleOverrides = Record<string, string>;
 
 export interface HomeText {
@@ -42,4 +50,5 @@ export interface CmsData {
     media: HomeMedia;
     text: HomeText;
     projects: Project[];
+    clients: Client[];
 }

@@ -89,6 +89,7 @@ function mergeWithDefaults(stored: Partial<CmsData>, defaults: CmsData): CmsData
         media,
         text,
         projects: Array.isArray(stored.projects) ? stored.projects : defaults.projects,
+        clients: Array.isArray(stored.clients) ? stored.clients : defaults.clients,
     };
 }
 

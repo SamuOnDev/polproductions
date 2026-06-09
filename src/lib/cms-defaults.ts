@@ -1,4 +1,4 @@
-import type { CmsData, Project } from "./cms-types";
+import type { CmsData, Client, Project } from "./cms-types";
 
 export const DEFAULT_PROJECTS: Project[] = [
     {
@@ -253,11 +253,23 @@ export const DEFAULT_MEDIA = {
     aboutPortraitImage: "/images/hero-showreel-cover.jpg",
 };
 
+const DEFAULT_CLIENTS: Client[] = [
+    { id: "c_lume", name: "Lume Records", url: "", logo: "" },
+    { id: "c_northbeat", name: "Northbeat", url: "", logo: "" },
+    { id: "c_atlas", name: "Atlas Studio", url: "", logo: "" },
+    { id: "c_vertigo", name: "Vertigo", url: "", logo: "" },
+    { id: "c_casamar", name: "Casa Mar", url: "", logo: "" },
+    { id: "c_norte", name: "Ediciones Norte", url: "", logo: "" },
+    { id: "c_pulse", name: "Pulse Mag", url: "", logo: "" },
+    { id: "c_halcon", name: "Halcón Audio", url: "", logo: "" },
+];
+
 export function buildDefaults(): CmsData {
     return {
         images: { ...DEFAULT_IMAGES },
         media: { ...DEFAULT_MEDIA },
         text: { es: {}, en: {} },
         projects: structuredClone(DEFAULT_PROJECTS),
+        clients: structuredClone(DEFAULT_CLIENTS),
     };
 }
