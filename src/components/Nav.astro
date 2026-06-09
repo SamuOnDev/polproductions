@@ -1,14 +1,19 @@
 ---
 import type { ActiveLang, LocaleTexts } from "../i18n";
+import { makeText, makeEk } from "../lib/page-text";
 
 interface Props {
     activeLang: ActiveLang;
     t: LocaleTexts;
     activeKey?: "home" | "portfolio";
+    overrides?: Record<string, string>;
+    editMode?: boolean;
 }
 
-const { activeLang, t, activeKey = "home" } = Astro.props;
+const { activeLang, t, activeKey = "home", overrides = {}, editMode = false } = Astro.props;
 const base = `/${activeLang}`;
+const text = makeText(t, overrides);
+const ek = makeEk(editMode);
 
 function swapLang(target: ActiveLang): string {
     const path = Astro.url.pathname;
@@ -29,16 +34,16 @@ function swapLang(target: ActiveLang): string {
             <img class="brand-logo brand-logo--light" src="/logo/pol-play-black.png" alt="Pol Sánchez" width="22" height="22" />
             <img class="brand-logo brand-logo--dark" src="/logo/pol-play-light.png" alt="Pol Sánchez" width="22" height="22" />
             <b>Pol Sánchez</b>
-            <span class="sub">/ {t.nav_role_label}</span>
+            <span class="sub">/ <span data-cms-key={ek("nav_role_label")}>{text("nav_role_label")}</span></span>
         </a>
         <nav class="nav-links">
-            <a class={activeKey === "portfolio" ? "active" : undefined} href={`${base}/portfolio`}>{t.nav_portfolio}</a>
-            <a href={`${base}/#process`}>{t.nav_process}</a>
-            <a href={`${base}/#about`}>{t.nav_about}</a>
-            <a href={`${base}/#contact`}>{t.nav_contact}</a>
+            <a class={activeKey === "portfolio" ? "active" : undefined} href={`${base}/portfolio`} data-cms-key={ek("nav_portfolio")}>{text("nav_portfolio")}</a>
+            <a href={`${base}/#process`} data-cms-key={ek("nav_process")}>{text("nav_process")}</a>
+            <a href={`${base}/#about`} data-cms-key={ek("nav_about")}>{text("nav_about")}</a>
+            <a href={`${base}/#contact`} data-cms-key={ek("nav_contact")}>{text("nav_contact")}</a>
         </nav>
         <div class="nav-cta">
-            <div class="availability"><span class="live"></span> {t.nav_availability}</div>
+            <div class="availability" data-cms-key={ek("nav_availability")}><span class="live"></span> {text("nav_availability")}</div>
             <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
                 <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                 <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -47,7 +52,7 @@ function swapLang(target: ActiveLang): string {
                 <a class={activeLang === "es" ? "active" : undefined} href={swapLang("es")} aria-current={activeLang === "es" ? "page" : undefined}>ES</a>
                 <a class={activeLang === "en" ? "active" : undefined} href={swapLang("en")} aria-current={activeLang === "en" ? "page" : undefined}>EN</a>
             </div>
-            <a class="btn solid" href={`${base}/#contact`}>{t.nav_cta} <span class="arr">→</span></a>
+            <a class="btn solid" href={`${base}/#contact`}><span data-cms-key={ek("nav_cta")}>{text("nav_cta")}</span> <span class="arr">→</span></a>
         </div>
     </div>
 </header>

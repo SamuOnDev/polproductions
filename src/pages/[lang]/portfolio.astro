@@ -2,6 +2,8 @@
 import type { ActiveLang } from "../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../i18n";
 import { loadCms } from "../../lib/cms-store";
+import { isEditMode } from "../../lib/edit-mode";
+import { makeText, makeEk } from "../../lib/page-text";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import type { Project } from "../../lib/cms-types";
 
@@ -14,6 +16,10 @@ if (!lang || !LANGS.includes(lang as ActiveLang)) {
 const activeLang = lang as ActiveLang;
 const t = await getDict(activeLang);
 const cms = await loadCms();
+const editMode = await isEditMode(Astro.cookies, Astro.url);
+const overrides = cms.text?.[activeLang] ?? {};
+const text = makeText(t, overrides);
+const ek = makeEk(editMode);
 
 const sortedHorizontal: Project[] = cms.projects
     .filter((p) => p.type === "horizontal")
@@ -46,31 +52,31 @@ const sizeMap: Array<"half" | "half" | "eq" | "eq" | "eq" | "half" | "half"> = [
 ];
 ---
 
-<BaseLayout activeLang={activeLang} t={t} title={title} description={String(t.portfolio_sub)} activeNav="portfolio">
+<BaseLayout activeLang={activeLang} t={t} title={title} description={String(t.portfolio_sub)} activeNav="portfolio" editMode={editMode} overrides={overrides}>
     <section class="page-head">
         <div class="container">
             <div class="crumb">
-                <a href={`${base}/`}>{t.portfolio_crumb_home}</a>
+                <a href={`${base}/`} data-cms-key={ek("portfolio_crumb_home")}>{text("portfolio_crumb_home")}</a>
                 <span>/</span>
-                <span>{t.portfolio_crumb_label}</span>
+                <span data-cms-key={ek("portfolio_crumb_label")}>{text("portfolio_crumb_label")}</span>
             </div>
-            <h1 class="reveal" set:html={t.portfolio_title} />
-            <p class="sub reveal" style="transition-delay:.1s">{t.portfolio_sub}</p>
+            <h1 class="reveal" set:html={text("portfolio_title")} data-cms-key={ek("portfolio_title")} />
+            <p class="sub reveal" style="transition-delay:.1s" data-cms-key={ek("portfolio_sub")}>{text("portfolio_sub")}</p>
         </div>
     </section>
 
     <div class="filter-bar">
         <div class="container inner">
             <div class="chips" id="chips">
-                <button class="chip active" data-filter="all">{t.portfolio_filter_all} <span class="count">{String(counts.all).padStart(2, "0")}</span></button>
-                <button class="chip" data-filter="horizontal">{t.portfolio_filter_horizontal} <span class="count">{String(counts.horizontal).padStart(2, "0")}</span></button>
-                <button class="chip" data-filter="vertical">{t.portfolio_filter_vertical} <span class="count">{String(counts.vertical).padStart(2, "0")}</span></button>
+                <button class="chip active" data-filter="all"><span data-cms-key={ek("portfolio_filter_all")}>{text("portfolio_filter_all")}</span> <span class="count">{String(counts.all).padStart(2, "0")}</span></button>
+                <button class="chip" data-filter="horizontal"><span data-cms-key={ek("portfolio_filter_horizontal")}>{text("portfolio_filter_horizontal")}</span> <span class="count">{String(counts.horizontal).padStart(2, "0")}</span></button>
+                <button class="chip" data-filter="vertical"><span data-cms-key={ek("portfolio_filter_vertical")}>{text("portfolio_filter_vertical")}</span> <span class="count">{String(counts.vertical).padStart(2, "0")}</span></button>
                 {tags.map((tag) => (
                     <button class="chip" data-filter={`tag:${tag}`}>{tag} <span class="count">{String(counts.byTag[tag]).padStart(2, "0")}</span></button>
                 ))}
             </div>
             <div class="sort">
-                <span>{t.portfolio_sort_label}</span>
+                <span data-cms-key={ek("portfolio_sort_label")}>{text("portfolio_sort_label")}</span>
                 <select id="sort">
                     <option value="order">{t.portfolio_sort_order}</option>
                     <option value="recent">{t.portfolio_sort_recent}</option>
@@ -85,7 +91,7 @@ const sizeMap: Array<"half" | "half" | "eq" | "eq" | "eq" | "half" | "half"> = [
         <div class="container">
             <div id="horizontalSection">
                 <div class="section-divider">
-                    <h2 set:html={t.portfolio_section_horizontal} />
+                    <h2 set:html={text("portfolio_section_horizontal")} data-cms-key={ek("portfolio_section_horizontal")} />
                     <span class="line"></span>
                     <span class="count" id="hCount">{String(sortedHorizontal.length).padStart(2, "0")} {t.portfolio_count_pieces}</span>
                 </div>
@@ -119,7 +125,7 @@ const sizeMap: Array<"half" | "half" | "eq" | "eq" | "eq" | "half" | "half"> = [
 
             <div id="verticalSection">
                 <div class="section-divider">
-                    <h2 set:html={t.portfolio_section_vertical} />
+                    <h2 set:html={text("portfolio_section_vertical")} data-cms-key={ek("portfolio_section_vertical")} />
                     <span class="line"></span>
                     <span class="count" id="vCount">{String(sortedVertical.length).padStart(2, "0")} {t.portfolio_count_pieces}</span>
                 </div>

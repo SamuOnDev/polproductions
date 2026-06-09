@@ -200,6 +200,7 @@ let editorPath = "/";
 
 const EDITOR_PAGES: Array<{ label: string; path: string }> = [
     { label: "Home", path: "/" },
+    { label: "Portfolio", path: "/portfolio" },
 ];
 
 const TEXT_LABELS: Record<string, string> = (() => {
@@ -290,44 +291,48 @@ function attachEditorOverlay(frame: HTMLIFrameElement) {
     if (!doc.getElementById("cms-ed-style")) {
         const st = doc.createElement("style");
         st.id = "cms-ed-style";
+        // Inside the editor the live page is INERT: only elements marked editable react.
+        // Everything else (links, buttons, the language switch, forms, players) is frozen
+        // so the owner can't navigate away, submit, or otherwise lose the editor.
         st.textContent =
-            "[data-cms-key],[data-cms-slot]{outline:1px dashed rgba(195,243,92,.55);outline-offset:2px;cursor:pointer;transition:outline-color .15s,background .15s;}" +
-            "[data-cms-key]:hover,[data-cms-slot]:hover{outline:2px solid #C3F35C;background:rgba(195,243,92,.12);}";
+            "body *{pointer-events:none !important}" +
+            "[data-cms-key],[data-cms-slot]{pointer-events:auto !important;cursor:pointer !important;outline:1px dashed rgba(195,243,92,.55);outline-offset:2px;transition:outline-color .15s,background .15s}" +
+            "[data-cms-key] *,[data-cms-slot] *{pointer-events:none !important}" +
+            "[data-cms-key]:hover,[data-cms-slot]:hover{outline:2px solid #C3F35C;background:rgba(195,243,92,.12)}";
         doc.head.appendChild(st);
     }
     doc.addEventListener(
         "click",
         (e) => {
             const target = e.target as HTMLElement | null;
-            if (!target) return;
-            const textEl = target.closest("[data-cms-key]") as HTMLElement | null;
+            const textEl = target?.closest("[data-cms-key]") as HTMLElement | null;
             if (textEl) {
                 e.preventDefault();
                 e.stopPropagation();
                 openTextEditor(textEl.dataset.cmsKey as string);
                 return;
             }
-            const imgEl = target.closest("[data-cms-slot]") as HTMLElement | null;
+            const imgEl = target?.closest("[data-cms-slot]") as HTMLElement | null;
             if (imgEl) {
                 e.preventDefault();
                 e.stopPropagation();
                 openImageEditor(imgEl.dataset.cmsSlot as string);
                 return;
             }
-            // Keep edit mode while navigating between pages of the same site.
-            const link = target.closest("a[href]") as HTMLAnchorElement | null;
-            if (link) {
-                const href = link.getAttribute("href") || "";
-                if (href.startsWith("/") && !href.startsWith("//")) {
-                    e.preventDefault();
-                    const sep = href.includes("?") ? "&" : "?";
-                    frame.src = `${href}${sep}cmsedit=1`;
-                }
-            }
+            // Anything else in the live page does nothing in edit mode.
+            e.preventDefault();
+            e.stopPropagation();
         },
         true,
     );
-    doc.addEventListener("submit", (e) => e.preventDefault(), true);
+    doc.addEventListener(
+        "submit",
+        (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        },
+        true,
+    );
 }
 
 function reloadEditorFrame() {

@@ -2,6 +2,8 @@
 import type { ActiveLang } from "../../../i18n";
 import { LANGS, DEFAULT_LANG, getDict } from "../../../i18n";
 import { loadCms } from "../../../lib/cms-store";
+import { isEditMode } from "../../../lib/edit-mode";
+import { makeText, makeEk } from "../../../lib/page-text";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import type { Project } from "../../../lib/cms-types";
 
@@ -15,6 +17,10 @@ const activeLang = lang as ActiveLang;
 const t = await getDict(activeLang);
 const cms = await loadCms();
 const project = id ? cms.projects.find((p) => p.id === id) : undefined;
+const editMode = await isEditMode(Astro.cookies, Astro.url);
+const overrides = cms.text?.[activeLang] ?? {};
+const text = makeText(t, overrides);
+const ek = makeEk(editMode);
 
 const base = `/${activeLang}`;
 const title = project
@@ -59,7 +65,7 @@ const credits = project?.credits
     : [];
 ---
 
-<BaseLayout activeLang={activeLang} t={t} title={title} description={project?.description ?? ""} activeNav="portfolio">
+<BaseLayout activeLang={activeLang} t={t} title={title} description={project?.description ?? ""} activeNav="portfolio" editMode={editMode} overrides={overrides}>
     {!project && (
         <section class="notfound">
             <div class="container">
@@ -75,9 +81,9 @@ const credits = project?.credits
             <section class="page-head project-hero">
                 <div class="container">
                     <div class="crumb">
-                        <a href={`${base}/`}>{t.project_crumb_home}</a>
+                        <a href={`${base}/`} data-cms-key={ek("project_crumb_home")}>{text("project_crumb_home")}</a>
                         <span>/</span>
-                        <a href={`${base}/portfolio`}>{t.project_crumb_portfolio}</a>
+                        <a href={`${base}/portfolio`} data-cms-key={ek("project_crumb_portfolio")}>{text("project_crumb_portfolio")}</a>
                         <span>/</span>
                         <span>{project.title}</span>
                     </div>
@@ -105,7 +111,7 @@ const credits = project?.credits
                             </button>
                         </div>
                     </div>
-                    {!embed && <p class="no-video-note">{t.project_no_video_note}</p>}
+                    {!embed && <p class="no-video-note" data-cms-key={ek("project_no_video_note")}>{text("project_no_video_note")}</p>}
                 </div>
             </section>
 
@@ -113,26 +119,26 @@ const credits = project?.credits
                 <div class="container">
                     <div class="details-grid">
                         <div>
-                            <h2 set:html={t.project_about_title} />
+                            <h2 set:html={text("project_about_title")} data-cms-key={ek("project_about_title")} />
                             {project.description
                                 ? project.description.split(/\n\n+/).map((para, i) => (
                                       <p class={i === 0 ? "lead" : undefined}>{para}</p>
                                   ))
-                                : <p class="lead">{t.project_about_pending}</p>}
+                                : <p class="lead" data-cms-key={ek("project_about_pending")}>{text("project_about_pending")}</p>}
                         </div>
                         <aside class="meta-card">
-                            <h4>{t.project_meta_title}</h4>
+                            <h4 data-cms-key={ek("project_meta_title")}>{text("project_meta_title")}</h4>
                             <dl>
-                                {project.client && <div class="row"><dt>{t.project_meta_client}</dt><dd>{project.client}</dd></div>}
-                                {project.role && <div class="row"><dt>{t.project_meta_role}</dt><dd>{project.role}</dd></div>}
-                                {project.year && <div class="row"><dt>{t.project_meta_year}</dt><dd>{project.year}</dd></div>}
-                                {project.format && <div class="row"><dt>{t.project_meta_format}</dt><dd>{project.format}</dd></div>}
-                                {project.duration && <div class="row"><dt>{t.project_meta_duration}</dt><dd>{project.duration}</dd></div>}
-                                {project.platform && <div class="row"><dt>{t.project_meta_platform}</dt><dd>{project.platform}</dd></div>}
-                                {project.views && <div class="row"><dt>{t.project_meta_views}</dt><dd>{project.views}</dd></div>}
+                                {project.client && <div class="row"><dt data-cms-key={ek("project_meta_client")}>{text("project_meta_client")}</dt><dd>{project.client}</dd></div>}
+                                {project.role && <div class="row"><dt data-cms-key={ek("project_meta_role")}>{text("project_meta_role")}</dt><dd>{project.role}</dd></div>}
+                                {project.year && <div class="row"><dt data-cms-key={ek("project_meta_year")}>{text("project_meta_year")}</dt><dd>{project.year}</dd></div>}
+                                {project.format && <div class="row"><dt data-cms-key={ek("project_meta_format")}>{text("project_meta_format")}</dt><dd>{project.format}</dd></div>}
+                                {project.duration && <div class="row"><dt data-cms-key={ek("project_meta_duration")}>{text("project_meta_duration")}</dt><dd>{project.duration}</dd></div>}
+                                {project.platform && <div class="row"><dt data-cms-key={ek("project_meta_platform")}>{text("project_meta_platform")}</dt><dd>{project.platform}</dd></div>}
+                                {project.views && <div class="row"><dt data-cms-key={ek("project_meta_views")}>{text("project_meta_views")}</dt><dd>{project.views}</dd></div>}
                                 {project.tools && (
                                     <div class="row">
-                                        <dt>{t.project_meta_tools}</dt>
+                                        <dt data-cms-key={ek("project_meta_tools")}>{text("project_meta_tools")}</dt>
                                         <dd>
                                             <div class="tools">
                                                 {project.tools.split(",").map((tool) => <span>{tool.trim()}</span>)}
@@ -142,8 +148,8 @@ const credits = project?.credits
                                 )}
                             </dl>
                             <div class="cta">
-                                {project.videoUrl && <a class="btn ghost" href={project.videoUrl} target="_blank" rel="noopener">{t.project_cta_external}</a>}
-                                <a class="btn solid" href={`${base}/#contact`}>{t.project_cta_similar} <span class="arr">→</span></a>
+                                {project.videoUrl && <a class="btn ghost" href={project.videoUrl} target="_blank" rel="noopener" data-cms-key={ek("project_cta_external")}>{text("project_cta_external")}</a>}
+                                <a class="btn solid" href={`${base}/#contact`}><span data-cms-key={ek("project_cta_similar")}>{text("project_cta_similar")}</span> <span class="arr">→</span></a>
                             </div>
                         </aside>
                     </div>
@@ -154,7 +160,7 @@ const credits = project?.credits
                 <section class="credits">
                     <div class="container">
                         <div class="credits-wrap">
-                            <h3 set:html={t.project_credits_title} />
+                            <h3 set:html={text("project_credits_title")} data-cms-key={ek("project_credits_title")} />
                             <div class="credit-list">
                                 {credits.map((row) => (
                                     <div class="credit-row"><span>{row.role || "—"}</span><b>{row.who}</b></div>
@@ -168,8 +174,8 @@ const credits = project?.credits
             {related.length > 0 && (
                 <section class="related">
                     <div class="container">
-                        <h3 set:html={isVertical ? t.project_related_vertical : t.project_related_horizontal} />
-                        <p class="sub">{t.project_related_sub}</p>
+                        <h3 set:html={text(isVertical ? "project_related_vertical" : "project_related_horizontal")} data-cms-key={ek(isVertical ? "project_related_vertical" : "project_related_horizontal")} />
+                        <p class="sub" data-cms-key={ek("project_related_sub")}>{text("project_related_sub")}</p>
                         <div class="related-grid">
                             {related.map((r) => (
                                 <a class={`related-card ${r.type === "vertical" ? "vertical" : ""}`} href={`${base}/project/${r.id}`}>

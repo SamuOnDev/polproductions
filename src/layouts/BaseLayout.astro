@@ -16,9 +16,11 @@ interface Props {
     activeNav?: "home" | "portfolio";
     /** Hide the public chrome (Admin FAB) when rendering inside the editor iframe. */
     editMode?: boolean;
+    /** Text overrides for the active language, so Nav/Footer can render editable text. */
+    overrides?: Record<string, string>;
 }
 
-const { activeLang, t, title, description = "", canonical, ogImage, activeNav = "home", editMode = false } = Astro.props;
+const { activeLang, t, title, description = "", canonical, ogImage, activeNav = "home", editMode = false, overrides = {} } = Astro.props;
 const siteUrl = Astro.site ? Astro.site.origin : "https://polsanchezbaena.com";
 const currentUrl = canonical ?? `${siteUrl}${Astro.url.pathname}`;
 const ogImg = ogImage ?? `${siteUrl}/images/hero-showreel-cover.jpg`;
@@ -48,11 +50,11 @@ const descStripped = description.replace(/<[^>]*>/g, "");
 </head>
 <body>
     <a href="#main-content" class="skip-link">{t.skip_to_content}</a>
-    <Nav activeLang={activeLang} t={t} activeKey={activeNav} />
+    <Nav activeLang={activeLang} t={t} activeKey={activeNav} overrides={overrides} editMode={editMode} />
     <main id="main-content">
         <slot />
     </main>
-    <Footer activeLang={activeLang} t={t} />
+    <Footer activeLang={activeLang} t={t} overrides={overrides} editMode={editMode} />
     {!editMode && <AdminFab t={t} />}
     <script is:inline>
         document.documentElement.classList.add('js');

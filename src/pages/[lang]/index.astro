@@ -74,7 +74,7 @@ const pageDesc = String(t.hero_role_desc || "");
 const base = `/${activeLang}`;
 ---
 
-<BaseLayout activeLang={activeLang} t={t} title={pageTitle} description={pageDesc} activeNav="home" editMode={editMode}>
+<BaseLayout activeLang={activeLang} t={t} title={pageTitle} description={pageDesc} activeNav="home" editMode={editMode} overrides={overrides}>
     <!-- HERO -->
     <section class="hero" id="top">
         <div class="container">
@@ -278,10 +278,10 @@ const base = `/${activeLang}`;
                     <p data-cms-key={ek("about_p1")}>{text("about_p1")}</p>
                     <p data-cms-key={ek("about_p2")}>{text("about_p2")}</p>
                     <div class="facts">
-                        <div class="fact"><span>{t.about_fact_1_label}</span><b>{t.about_fact_1_value}</b></div>
-                        <div class="fact"><span>{t.about_fact_2_label}</span><b>{t.about_fact_2_value}</b></div>
-                        <div class="fact"><span>{t.about_fact_3_label}</span><b>{t.about_fact_3_value}</b></div>
-                        <div class="fact"><span>{t.about_fact_4_label}</span><b>{t.about_fact_4_value}</b></div>
+                        <div class="fact"><span data-cms-key={ek("about_fact_1_label")}>{text("about_fact_1_label")}</span><b data-cms-key={ek("about_fact_1_value")}>{text("about_fact_1_value")}</b></div>
+                        <div class="fact"><span data-cms-key={ek("about_fact_2_label")}>{text("about_fact_2_label")}</span><b data-cms-key={ek("about_fact_2_value")}>{text("about_fact_2_value")}</b></div>
+                        <div class="fact"><span data-cms-key={ek("about_fact_3_label")}>{text("about_fact_3_label")}</span><b data-cms-key={ek("about_fact_3_value")}>{text("about_fact_3_value")}</b></div>
+                        <div class="fact"><span data-cms-key={ek("about_fact_4_label")}>{text("about_fact_4_label")}</span><b data-cms-key={ek("about_fact_4_value")}>{text("about_fact_4_value")}</b></div>
                     </div>
                 </div>
             </div>
@@ -298,19 +298,19 @@ const base = `/${activeLang}`;
                     <p data-cms-key={ek("contact_desc")}>{text("contact_desc")}</p>
 
                     <div class="contact-channels">
-                        <a class="channel" href={`mailto:${t.contact_email}`}>
+                        <a class="channel" href={`mailto:${text("contact_email")}`}>
                             <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg></span>
-                            <div class="body"><span>{t.contact_email_label}</span><b>{t.contact_email}</b></div>
+                            <div class="body"><span data-cms-key={ek("contact_email_label")}>{text("contact_email_label")}</span><b data-cms-key={ek("contact_email")}>{text("contact_email")}</b></div>
                             <span class="arr">→</span>
                         </a>
-                        <a class="channel" href={`tel:${String(t.contact_phone).replace(/\s+/g, "")}`}>
+                        <a class="channel" href={`tel:${text("contact_phone").replace(/\s+/g, "")}`}>
                             <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
-                            <div class="body"><span>{t.contact_phone_label}</span><b>{t.contact_phone}</b></div>
+                            <div class="body"><span data-cms-key={ek("contact_phone_label")}>{text("contact_phone_label")}</span><b data-cms-key={ek("contact_phone")}>{text("contact_phone")}</b></div>
                             <span class="arr">→</span>
                         </a>
                         <a class="channel" href="#">
                             <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></span>
-                            <div class="body"><span>{t.contact_social_label}</span><b>{t.contact_social}</b></div>
+                            <div class="body"><span data-cms-key={ek("contact_social_label")}>{text("contact_social_label")}</span><b data-cms-key={ek("contact_social")}>{text("contact_social")}</b></div>
                             <span class="arr">→</span>
                         </a>
                     </div>
